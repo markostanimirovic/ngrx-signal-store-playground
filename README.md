@@ -167,7 +167,7 @@ import {
   withEffects,
   withHooks,
 } from '@ngrx/signals';
-import { rxEffect } from '@ngrx/signals/rxjs-interop';
+import { rxEffect } from '@ngrx/signals';
 import { computed } from '@angular/core';
 
 type UsersState = {
@@ -236,7 +236,7 @@ The `rxEffect` function can be used with `signalStore` as we saw above or comple
 Examples:
 
 ```ts
-import { rxEffect } from '@ngrx/signals/rxjs-interop';
+import { rxEffect } from '@ngrx/signals';
 import { signal } from '@angular/core';
 
 @Component({ /* ... */ })
@@ -360,19 +360,22 @@ This (sub)package should provide the following APIs:
 Example:
 
 ```ts
-import { rxEffect } from '@ngrx/signals/rxjs-interop';
+import { rxEffect } from '@ngrx/signals';
 import { withEntities, setAll, deleteOne } from '@ngrx/signals/entity';
+import { withCallState, setLoading, setLoaded } from './call-state-feature.ts';
 
 const [provideUsersStore, injectUsersStore] = signalStore(
   withEntites<User>(),
+  withCallState(),
   withEffects(({ update }) => {
     const usersService = inject(UsersService);
 
     return {
       loadUsers: rxEffect(
         pipe(
+          tap(() => update(setLoading())),
           exhaustMap(() => usersService.getAll()),
-          tap((users) => update(setAll(users)))
+          tap((users) => update(setAll(users), setLoaded()))
         )
       ),
     };
@@ -382,6 +385,7 @@ const [provideUsersStore, injectUsersStore] = signalStore(
 @Component({
   template: `
     <p>Users: {{ usersStore.entities() | json }}</p>
+    <p *ngIf="usersStore.loading()">Loading ...</p>
     <button (click)="onDeleteOne()">Delete One</button>
   `,
   providers: [provideUsersStore()]
