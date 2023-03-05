@@ -35,11 +35,11 @@ export function withEffects<
     computed: {},
     updaters: {},
     effects: effectsFactory({
+      update: feature.update,
       ...feature.state,
       ...feature.computed,
       ...feature.updaters,
       ...feature.effects,
-      update: feature.update,
     } as State & Computed & Updaters & PreviousEffects & SignalStoreUpdate<StaticState<State>>),
     hooks: {
       onInit() {},

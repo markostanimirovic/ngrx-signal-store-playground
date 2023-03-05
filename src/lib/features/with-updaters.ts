@@ -30,10 +30,10 @@ export function withUpdaters<
     state: {},
     computed: {},
     updaters: updatersFactory({
+      update: feature.update,
       ...feature.state,
       ...feature.computed,
       ...feature.updaters,
-      update: feature.update,
     } as State & Computed & PreviousUpdaters & SignalStoreUpdate<StaticState<State>>),
     effects: {},
     hooks: {

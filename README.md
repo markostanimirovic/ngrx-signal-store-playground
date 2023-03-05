@@ -8,8 +8,8 @@
 Main Goals:
 
 - Providing unidirectional and predictable data flow with signals.
-- Keeping declarative approach instead of "imperative reactivity" which is possible with signals.
-- Separating side effects from state to avoid unpredictable data flow.
+- Keeping a declarative approach instead of "imperative reactivity" that is possible with signals.
+- Separating side effects from state to avoid unpredictable data flows.
 
 Key Principles:
 
@@ -111,7 +111,7 @@ export class UsersComponent {
 
 #### `update` function
 
-The `update` function is used to update the signal store state. It accepts a sequence of partial state objects or update functions that partially updates the state. This provides the ability to define reusable and tree-shakeable updater functions that can be used in any signal store.
+The `update` function is used to update the signal store state. It accepts a sequence of partial state objects or update functions that partially updates the state. This provides the ability to define reusable updater functions that can be used in any signal store.
 
 Examples:
 
@@ -166,8 +166,8 @@ import {
   withUpdaters,
   withEffects,
   withHooks,
+  rxEffect,
 } from '@ngrx/signals';
-import { rxEffect } from '@ngrx/signals';
 import { computed } from '@angular/core';
 
 type UsersState = {
@@ -293,7 +293,7 @@ type SignalStoreFeature = {
 
 For example, we can define `withCallState` feature in the following way:
 
-> :bell: We can also create a helper function (`createSignalStoreFeature`) to easily create more complex custom features.
+> There can also be a helper function (`createSignalStoreFeature`) to create custom features.
 
 ```ts
 import { signal, computed } from '@angular/core';
@@ -352,7 +352,7 @@ function setLoaded(): { callState: 'loaded' } {
 
 ### Entity Management
 
-This (sub)package should provide the following APIs:
+This package should provide the following APIs:
 
 - `withEntities` feature that will add `entityMap` and `ids` as state, and `entities` (entity list) as computed property
 - tree-shakeable updater functions: `setOne`, `setAll`, `deleteOne`, `deleteMany`, etc.
@@ -365,7 +365,7 @@ import { withEntities, setAll, deleteOne } from '@ngrx/signals/entity';
 import { withCallState, setLoading, setLoaded } from './call-state-feature.ts';
 
 const [provideUsersStore, injectUsersStore] = signalStore(
-  withEntites<User>(),
+  withEntities<User>(),
   withCallState(),
   withEffects(({ update }) => {
     const usersService = inject(UsersService);

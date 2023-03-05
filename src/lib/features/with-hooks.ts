@@ -44,20 +44,20 @@ export function withHooks<
     hooks: {
       onInit() {
         hooks.onInit?.({
+          update: feature.update,
           ...feature.state,
           ...feature.computed,
           ...feature.updaters,
           ...feature.effects,
-          update: feature.update,
         });
       },
       onDestroy() {
         hooks.onDestroy?.({
+          update: feature.update,
           ...feature.state,
           ...feature.computed,
           ...feature.updaters,
           ...feature.effects,
-          update: feature.update,
         });
       },
     },

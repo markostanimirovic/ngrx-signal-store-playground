@@ -444,7 +444,7 @@ function signalStoreFactory(featureFactories: SignalStoreFeatureFactory[]) {
   for (const featureFactory of featureFactories) {
     const feature = featureFactory({
       update,
-      ...(rootFeature as SignalStoreFeature),
+      ...rootFeature,
     });
 
     rootFeature.state = {
