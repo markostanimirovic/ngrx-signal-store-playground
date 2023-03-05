@@ -1,6 +1,7 @@
 ## @ngrx/signals
 
 > Package name suggestions:
+>
 > - `@ngrx/signals`
 > - `@ngrx/signal-store`
 > - `@ngrx/state`
@@ -45,10 +46,10 @@ type UsersState = {
 
 const [provideUsersStore, injectUsersStore] = signalStore(
   withState<UsersState>({ users: [], query: '' }),
-  // note: we can access previously defined state slices via factory argument
+  // we can access previously defined state slices via factory argument
   withComputed(({ users, query }) => ({
     filteredUsers: computed(() =>
-      // note: 'users' and 'query' slices are signals
+      // 'users' and 'query' slices are signals
       users().filter(({ name }) => name.includes(query()))
     ),
   }))
@@ -86,7 +87,9 @@ const injectUsersStore = signalStore(
   withState<UsersState>({ users: [], query: '' })
 );
 
-@Component({ /* ... */ })
+@Component({
+  /* ... */
+})
 export class UsersComponent {
   // all consumers will inject the same instance of users store
   readonly usersStore = injectUsersStore();
@@ -96,9 +99,11 @@ export class UsersComponent {
 There is also an option to get the signal store instance as a result by using `{ useInjection: false }`. This covers the use-case when we want to create a store within a component:
 
 ```ts
-@Component({ /* ... */ })
+@Component({
+  /* ... */
+})
 export class UsersComponent {
-  // note: 'signalStore' function returns an instance of signal store
+  // 'signalStore' function returns an instance of signal store
   // when '{ useInjection: false }' is used
   readonly usersStore = signalStore(
     { useInjection: false },
@@ -133,15 +138,16 @@ usersStore.update((state) => ({
 }));
 
 // passing a sequence of partial state objects and/or updater functions:
-usersStore.update(
-  (state) => ({ users: [...state.users, 'u4'] }),
-  { callState: 'loaded' }
-);
+usersStore.update((state) => ({ users: [...state.users, 'u4'] }), {
+  callState: 'loaded',
+});
 
 // We can also define reusable and tree-shakeable updater functions
 // that can be used in any signal store:
-function removeInactiveUsers(): (state: { users: User[] }) => { users: User[] } {
-  return (state) => ({ users: state.users.filter((user) => user.isActive) })
+function removeInactiveUsers(): (state: { users: User[] }) => {
+  users: User[];
+} {
+  return (state) => ({ users: state.users.filter((user) => user.isActive) });
 }
 
 function setLoaded(): { callState: CallState } {
@@ -182,18 +188,18 @@ const [provideUsersStore, injectUsersStore] = signalStore(
       users().filter(({ name }) => name.includes(query()))
     ),
   })),
-  // note: we can access the 'update' function via updaters/effects
+  // we can access the 'update' function via updaters/effects
   // factory argument
   withUpdaters(({ update, users }) => ({
     addUsers: (newUsers: User[]) => {
-      update((state) => ({ users: [...state.users, newUsers] }))
+      update((state) => ({ users: [...state.users, newUsers] }));
       // or:
       // update({ users: [...users(), newUsers] })
     },
   })),
   withEffects(({ addUsers }) => {
     const usersService = inject(UsersService);
-    // note: read more about 'rxEffect' in the section below
+    // read more about 'rxEffect' in the section below
     const loadUsers = rxEffect<void>(
       pipe(
         exhaustMap(() => usersService.getAll()),
@@ -225,6 +231,29 @@ export class UsersComponent {
 }
 ```
 
+However, it's not mandatory to use `rxEffect` and RxJS APIs when defining the `signalStore` side effects. We can also create the effect in the following way:
+
+```ts
+const [provideUsersStore, injectUsersStore] = signalStore(
+  withState<UsersState>({ users: [], loading: false }),
+  withEffects(({ update }) => ({
+    // creating side effect by using async/await approach
+    async loadUsers() {
+      update({ loading: true });
+      const users = await fetchUsers();
+      update({ users, loading: false });
+    },
+  })),
+  withHooks({
+    onInit: ({ loadUsers }) => loadUsers(),
+  })
+);
+
+function fetchUsers(): Promise<User[]> {
+  return fetch('/users').then((res) => res.json());
+}
+```
+
 ### `rxEffect`
 
 The `rxEffect` function is a similar API to `ComponentStore.effect`. It provides the ability to manage asynchronous side effects by using RxJS. It returns a function that accepts a static value, signal, or observable as an input argument.
@@ -239,10 +268,12 @@ Examples:
 import { rxEffect } from '@ngrx/signals';
 import { signal } from '@angular/core';
 
-@Component({ /* ... */ })
+@Component({
+  /* ... */
+})
 export class UsersComponent implements OnInit {
   private readonly usersService = inject(UsersService);
-  
+
   readonly users = signal<User[]>([]);
   readonly loading = signal(false);
   readonly query = signal('');
@@ -257,7 +288,7 @@ export class UsersComponent implements OnInit {
       })
     )
   );
-  
+
   ngOnInit(): void {
     // The effect will be executed every time when query signal changes.
     // It will clean up supscription when 'UsersComponent' is destroyed.
@@ -279,16 +310,13 @@ Every store feature returns an object that contains following properties:
 type SignalStoreFeature = {
   state: Record<string, Signal<unknown>>;
   computed: Record<string, Signal<unknown>>;
-  effects: Record<
-    string,
-    (source: unknown | Observable<unknown> | Signal<unknown>) => Subscription
-  >;
   updaters: Record<string, (...args: unknown[]) => void>;
+  effects: Record<string, (...args: unknown[]) => unknown>;
   hooks: {
     onInit: () => void;
     onDestroy: () => void;
-  }
-}
+  };
+};
 ```
 
 For example, we can define `withCallState` feature in the following way:
@@ -308,7 +336,7 @@ function withCallState(): () => {
 } {
   return () => {
     const callState = signal<CallState>('init');
-    
+
     return {
       state: { callState },
       computed: {
@@ -317,7 +345,7 @@ function withCallState(): () => {
         error: computed(() =>
           typeof callState() === 'object' ? callState().error : null
         ),
-      }
+      },
     };
   };
 }
@@ -388,7 +416,7 @@ const [provideUsersStore, injectUsersStore] = signalStore(
     <p *ngIf="usersStore.loading()">Loading ...</p>
     <button (click)="onDeleteOne()">Delete One</button>
   `,
-  providers: [provideUsersStore()]
+  providers: [provideUsersStore()],
 })
 export class UsersComponent implements OnInit {
   readonly usersStore = injectUsersStore();
@@ -423,11 +451,6 @@ const booksStore = signalStore(
 // - (computed) booksStore.authorEntities: Signal<Author[]>;
 
 // updating multiple collections:
-booksStore.update(
-  addOne(
-    { id: 10, title: 'Book 1' },
-    { collection: 'book' }
-  )
-);
+booksStore.update(addOne({ id: 10, title: 'Book 1' }, { collection: 'book' }));
 booksStore.update(deleteOne(100, { collection: 'author' }));
 ```

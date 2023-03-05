@@ -36,22 +36,30 @@ export const injectUsersStore = signalStore(
   withUsersEffects(),
   withHooks({
     // re-fetch users every time when filter signal changes
-    onInit: ({ loadUsers, filter }) => loadUsers(filter),
+    onInit: ({ loadUsersByFilter, filter }) => loadUsersByFilter(filter),
   })
 );
 
 function withUsersEffects() {
   return withEffects(({ update }: SignalStoreUpdate<UsersState>) => {
-    const { getUsers } = inject(UsersService);
-    const loadUsers = rxEffect<{ query: string; pageSize: number }>(
-      pipe(
-        debounceTime(300),
-        tap(() => update({ loading: true })),
-        switchMap(({ query, pageSize }) => getUsers(query, pageSize)),
-        tap((users) => update({ users, loading: false }))
-      )
-    );
+    const { getByFilter, getAll } = inject(UsersService);
 
-    return { loadUsers };
+    // We can use `rxEffect` to create side effects by using RxJS APIs.
+    // However, that's not mandatory. We can also create effects without RxJS:
+    return {
+      async loadAllUsers() {
+        update({ loading: true });
+        const users = await getAll();
+        update({ users, loading: false });
+      },
+      loadUsersByFilter: rxEffect<{ query: string; pageSize: number }>(
+        pipe(
+          debounceTime(300),
+          tap(() => update({ loading: true })),
+          switchMap((filter) => getByFilter(filter)),
+          tap((users) => update({ users, loading: false }))
+        )
+      ),
+    };
   });
 }

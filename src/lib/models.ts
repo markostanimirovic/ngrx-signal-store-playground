@@ -1,5 +1,4 @@
 import { Signal } from '@angular/core';
-import { Subscription } from 'rxjs';
 
 export type SignalStoreUpdateFn<State> = (
   ...updaters: Array<Partial<State> | ((state: State) => Partial<State>)>
@@ -13,7 +12,7 @@ export type SignalStoreFeature = {
   state: Record<string, Signal<any>>;
   computed: Record<string, Signal<any>>;
   updaters: Record<string, (...args: any[]) => void>;
-  effects: Record<string, (input: any) => Subscription>;
+  effects: Record<string, (...args: any[]) => any>;
   hooks: {
     onInit: () => void;
     onDestroy: () => void;

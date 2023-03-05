@@ -1,12 +1,11 @@
 import { Signal } from '@angular/core';
-import { Subscription } from 'rxjs';
 import { SignalStoreUpdate, StaticState } from '../models';
 
 export function withHooks<
   State extends Record<string, Signal<any>>,
   Computed extends Record<string, Signal<any>>,
   Updaters extends Record<string, (...args: any[]) => void>,
-  Effects extends Record<string, (input: any) => Subscription>
+  Effects extends Record<string, (...args: any[]) => any>
 >(hooks: {
   onInit?: (
     store: State &

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { delay, map, Observable, of } from 'rxjs';
+import { delay, Observable, of } from 'rxjs';
 import { User } from './user.model';
 
 const usersMock: User[] = [
@@ -12,10 +12,18 @@ const usersMock: User[] = [
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
-  getUsers(query: string, pageSize: number): Observable<User[]> {
+  getAll(): Promise<User[]> {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(usersMock), 1000);
+    });
+  }
+
+  getByFilter(filter: { query: string; pageSize: number }): Observable<User[]> {
     const filteredUsers = usersMock
-      .filter(({ name }) => name.toLowerCase().includes(query.toLowerCase()))
-      .slice(0, pageSize);
+      .filter(({ name }) =>
+        name.toLowerCase().includes(filter.query.toLowerCase())
+      )
+      .slice(0, filter.pageSize);
 
     return of(filteredUsers).pipe(delay(1000));
   }

@@ -1,13 +1,12 @@
 import { Signal } from '@angular/core';
-import { Subscription } from 'rxjs';
 import { SignalStoreUpdate, StaticState } from '../models';
 
 export function withEffects<
   State extends Record<string, Signal<any>>,
   Computed extends Record<string, Signal<any>>,
   Updaters extends Record<string, (...args: any[]) => void>,
-  PreviousEffects extends Record<string, (input: any) => Subscription>,
-  Effects extends Record<string, (input: any) => Subscription>
+  PreviousEffects extends Record<string, (...args: any[]) => any>,
+  Effects extends Record<string, (...args: any[]) => any>
 >(
   effectsFactory: (
     input: State &
