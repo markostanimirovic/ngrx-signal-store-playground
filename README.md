@@ -1,24 +1,36 @@
 ## @ngrx/signals
 
-> Package name suggestions:
->
-> - `@ngrx/signals`
-> - `@ngrx/signal-store`
-> - `@ngrx/state`
-
-Main Goals:
+Main goals:
 
 - Providing unidirectional and predictable data flow with signals.
 - Keeping a declarative approach instead of "imperative reactivity" that is possible with signals.
-- Separating side effects from state to avoid unpredictable data flows.
+- Separating side effects from the state to avoid unpredictable data flows.
 
-Key Principles:
+Key principles:
 
 - Simple and intuitive
 - Declarative
 - Composable
 - Tree-shakeable
 - Strongly typed
+
+Package name suggestions:
+
+- `@ngrx/signals`
+- `@ngrx/signal-store`
+- `@ngrx/state`
+
+### [Playground](https://github.com/markostanimirovic/ngrx-signal-store-playground)
+
+### Contents
+
+- [`signalStore`](#signalstore)
+- [Store Features](#store-features)
+  - [DI Config](#di-config)
+  - [`update` Function](#update-function)
+- [`rxEffect`](#rxeffect)
+- [Custom Store Features](#custom-store-features)
+- [Entity Management](#entity-management)
 
 ### `signalStore`
 
@@ -114,9 +126,9 @@ export class UsersComponent {
 
 ---
 
-#### `update` function
+#### `update` Function
 
-The `update` function is used to update the signal store state. It accepts a sequence of partial state objects or update functions that partially updates the state. This provides the ability to define reusable updater functions that can be used in any signal store.
+The `update` function is used to update the signal store state. It accepts a sequence of partial state objects or updater functions that partially updates the state. This provides the ability to define reusable updater functions that can be used in any signal store.
 
 Examples:
 
