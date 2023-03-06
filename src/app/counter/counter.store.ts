@@ -2,6 +2,7 @@ import { computed, effect } from '@angular/core';
 import {
   signalStore,
   withComputed,
+  withEffects,
   withHooks,
   withState,
   withUpdaters,
@@ -17,8 +18,13 @@ export const [provideCounterStore, injectCounterStore] = signalStore(
     // or we can use signal getter as follows:
     decrement: () => update({ count: count() - 1 }),
   })),
+  withEffects(({ count }) => ({
+    logCountOnChange() {
+      effect(() => console.log('count changed', count()));
+    },
+  })),
   withHooks({
-    onInit: ({ count }) => effect(() => console.log('count changed', count())),
-    onDestroy: () => console.log('counter store destroyed'),
+    onInit: ({ logCountOnChange }) => logCountOnChange(),
+    onDestroy: ({ count }) => console.log('count value on destroy', count()),
   })
 );

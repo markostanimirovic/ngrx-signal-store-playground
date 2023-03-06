@@ -41,12 +41,13 @@ export const injectUsersStore = signalStore(
 );
 
 function withUsersEffects() {
-  return withEffects(({ update }: SignalStoreUpdate<UsersState>) => {
-    const { getByFilter, getAll } = inject(UsersService);
-
-    // We can use `rxEffect` to create side effects by using RxJS APIs.
-    // However, that's not mandatory. We can also create effects without RxJS:
-    return {
+  return withEffects(
+    (
+      { update }: SignalStoreUpdate<UsersState>,
+      { getByFilter, getAll } = inject(UsersService)
+    ) => ({
+      // We can use `rxEffect` to create side effects by using RxJS APIs.
+      // However, that's not mandatory. We can also create effects without RxJS:
       async loadAllUsers() {
         update({ loading: true });
         const users = await getAll();
@@ -60,6 +61,6 @@ function withUsersEffects() {
           tap((users) => update({ users, loading: false }))
         )
       ),
-    };
-  });
+    })
+  );
 }
