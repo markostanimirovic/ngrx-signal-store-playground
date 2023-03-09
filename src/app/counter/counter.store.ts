@@ -1,6 +1,6 @@
 import { computed, effect } from '@angular/core';
 import {
-  signalStore,
+  createSignalStore,
   withComputed,
   withEffects,
   withHooks,
@@ -8,7 +8,7 @@ import {
   withUpdaters,
 } from '@ngrx/signals';
 
-export const [provideCounterStore, injectCounterStore] = signalStore(
+export const CounterStore = createSignalStore(
   withState({ count: 0 }),
   withComputed(({ count }) => ({
     doubleCount: computed(() => count() * 2),

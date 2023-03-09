@@ -1,9 +1,4 @@
-import {
-  FactoryProvider,
-  inject,
-  InjectionToken,
-  SettableSignal,
-} from '@angular/core';
+import { Injectable, SettableSignal, Type } from '@angular/core';
 import {
   SignalStoreFeature,
   SignalStoreFeatureFactory,
@@ -13,9 +8,7 @@ import {
 } from './models';
 import { injectDestroy } from './inject-destroy';
 
-type SignalStoreConfig =
-  | { providedIn: 'root' }
-  | { useInjection: false; providedIn?: never };
+type SignalStoreConfig = { providedIn: 'root' };
 
 type FeatureResult<Feature extends SignalStoreFeature> = Feature['state'] &
   Feature['computed'] &
@@ -184,17 +177,14 @@ type F6Result<
     >
   >;
 
-export function signalStore<F1 extends SignalStoreFeature>(
+export function createSignalStore<F1 extends SignalStoreFeature>(
   f1: F1Factory<F1>
-): [provide: () => FactoryProvider, inject: () => F1Result<F1>];
-export function signalStore<
+): Type<F1Result<F1>>;
+export function createSignalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature
->(
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>
-): [provide: () => FactoryProvider, inject: () => F2Result<F1, F2>];
-export function signalStore<
+>(f1: F1Factory<F1>, f2: F2Factory<F1, F2>): Type<F2Result<F1, F2>>;
+export function createSignalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature
@@ -202,8 +192,8 @@ export function signalStore<
   f1: F1Factory<F1>,
   f2: F2Factory<F1, F2>,
   f3: F3Factory<F1, F2, F3>
-): [provide: () => FactoryProvider, inject: () => F3Result<F1, F2, F3>];
-export function signalStore<
+): Type<F3Result<F1, F2, F3>>;
+export function createSignalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature,
@@ -213,8 +203,8 @@ export function signalStore<
   f2: F2Factory<F1, F2>,
   f3: F3Factory<F1, F2, F3>,
   f4: F4Factory<F1, F2, F3, F4>
-): [provide: () => FactoryProvider, inject: () => F4Result<F1, F2, F3, F4>];
-export function signalStore<
+): Type<F4Result<F1, F2, F3, F4>>;
+export function createSignalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature,
@@ -226,8 +216,8 @@ export function signalStore<
   f3: F3Factory<F1, F2, F3>,
   f4: F4Factory<F1, F2, F3, F4>,
   f5: F5Factory<F1, F2, F3, F4, F5>
-): [provide: () => FactoryProvider, inject: () => F5Result<F1, F2, F3, F4, F5>];
-export function signalStore<
+): Type<F5Result<F1, F2, F3, F4, F5>>;
+export function createSignalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature,
@@ -241,60 +231,57 @@ export function signalStore<
   f4: F4Factory<F1, F2, F3, F4>,
   f5: F5Factory<F1, F2, F3, F4, F5>,
   f6: F6Factory<F1, F2, F3, F4, F5, F6>
-): [
-  provide: () => FactoryProvider,
-  inject: () => F6Result<F1, F2, F3, F4, F5, F6>
-];
+): Type<F6Result<F1, F2, F3, F4, F5, F6>>;
 
-export function signalStore<F1 extends SignalStoreFeature>(
-  config: { providedIn: 'root' },
+export function createSignalStore<F1 extends SignalStoreFeature>(
+  config: SignalStoreConfig,
   f1: F1Factory<F1>
-): () => F1Result<F1>;
-export function signalStore<
+): Type<F1Result<F1>>;
+export function createSignalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature
 >(
-  config: { providedIn: 'root' },
+  config: SignalStoreConfig,
   f1: F1Factory<F1>,
   f2: F2Factory<F1, F2>
-): () => F2Result<F1, F2>;
-export function signalStore<
+): Type<F2Result<F1, F2>>;
+export function createSignalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature
 >(
-  config: { providedIn: 'root' },
+  config: SignalStoreConfig,
   f1: F1Factory<F1>,
   f2: F2Factory<F1, F2>,
   f3: F3Factory<F1, F2, F3>
-): () => F3Result<F1, F2, F3>;
-export function signalStore<
+): Type<F3Result<F1, F2, F3>>;
+export function createSignalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature,
   F4 extends SignalStoreFeature
 >(
-  config: { providedIn: 'root' },
+  config: SignalStoreConfig,
   f1: F1Factory<F1>,
   f2: F2Factory<F1, F2>,
   f3: F3Factory<F1, F2, F3>,
   f4: F4Factory<F1, F2, F3, F4>
-): () => F4Result<F1, F2, F3, F4>;
-export function signalStore<
+): Type<F4Result<F1, F2, F3, F4>>;
+export function createSignalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature,
   F4 extends SignalStoreFeature,
   F5 extends SignalStoreFeature
 >(
-  config: { providedIn: 'root' },
+  config: SignalStoreConfig,
   f1: F1Factory<F1>,
   f2: F2Factory<F1, F2>,
   f3: F3Factory<F1, F2, F3>,
   f4: F4Factory<F1, F2, F3, F4>,
   f5: F5Factory<F1, F2, F3, F4, F5>
-): () => F5Result<F1, F2, F3, F4, F5>;
-export function signalStore<
+): Type<F5Result<F1, F2, F3, F4, F5>>;
+export function createSignalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature,
@@ -302,111 +289,33 @@ export function signalStore<
   F5 extends SignalStoreFeature,
   F6 extends SignalStoreFeature
 >(
-  config: { providedIn: 'root' },
+  config: SignalStoreConfig,
   f1: F1Factory<F1>,
   f2: F2Factory<F1, F2>,
   f3: F3Factory<F1, F2, F3>,
   f4: F4Factory<F1, F2, F3, F4>,
   f5: F5Factory<F1, F2, F3, F4, F5>,
   f6: F6Factory<F1, F2, F3, F4, F5, F6>
-): () => F6Result<F1, F2, F3, F4, F5, F6>;
+): Type<F6Result<F1, F2, F3, F4, F5, F6>>;
 
-export function signalStore<F1 extends SignalStoreFeature>(
-  config: { useInjection: false },
-  f1: F1Factory<F1>
-): F1Result<F1>;
-export function signalStore<
-  F1 extends SignalStoreFeature,
-  F2 extends SignalStoreFeature
->(
-  config: { useInjection: false },
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>
-): F2Result<F1, F2>;
-export function signalStore<
-  F1 extends SignalStoreFeature,
-  F2 extends SignalStoreFeature,
-  F3 extends SignalStoreFeature
->(
-  config: { useInjection: false },
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>,
-  f3: F3Factory<F1, F2, F3>
-): F3Result<F1, F2, F3>;
-export function signalStore<
-  F1 extends SignalStoreFeature,
-  F2 extends SignalStoreFeature,
-  F3 extends SignalStoreFeature,
-  F4 extends SignalStoreFeature
->(
-  config: { useInjection: false },
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>,
-  f3: F3Factory<F1, F2, F3>,
-  f4: F4Factory<F1, F2, F3, F4>
-): F4Result<F1, F2, F3, F4>;
-export function signalStore<
-  F1 extends SignalStoreFeature,
-  F2 extends SignalStoreFeature,
-  F3 extends SignalStoreFeature,
-  F4 extends SignalStoreFeature,
-  F5 extends SignalStoreFeature
->(
-  config: { useInjection: false },
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>,
-  f3: F3Factory<F1, F2, F3>,
-  f4: F4Factory<F1, F2, F3, F4>,
-  f5: F5Factory<F1, F2, F3, F4, F5>
-): F5Result<F1, F2, F3, F4, F5>;
-export function signalStore<
-  F1 extends SignalStoreFeature,
-  F2 extends SignalStoreFeature,
-  F3 extends SignalStoreFeature,
-  F4 extends SignalStoreFeature,
-  F5 extends SignalStoreFeature,
-  F6 extends SignalStoreFeature
->(
-  config: { useInjection: false },
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>,
-  f3: F3Factory<F1, F2, F3>,
-  f4: F4Factory<F1, F2, F3, F4>,
-  f5: F5Factory<F1, F2, F3, F4, F5>,
-  f6: F6Factory<F1, F2, F3, F4, F5, F6>
-): F6Result<F1, F2, F3, F4, F5, F6>;
-
-export function signalStore(
+export function createSignalStore(
   ...args:
     | [SignalStoreConfig, ...SignalStoreFeatureFactory[]]
     | SignalStoreFeatureFactory[]
 ) {
-  const [config, ...featureFactories] = isSignalStoreConfig(args[0])
-    ? [args[0], ...(args.slice(1) as SignalStoreFeatureFactory[])]
-    : [{}, ...(args as SignalStoreFeatureFactory[])];
+  const [config, ...featureFactories] =
+    'providedIn' in args[0]
+      ? [args[0], ...(args.slice(1) as SignalStoreFeatureFactory[])]
+      : [{}, ...(args as SignalStoreFeatureFactory[])];
 
-  if (config.providedIn === 'root') {
-    const SIGNAL_STORE_TOKEN = new InjectionToken('Signal Store', {
-      providedIn: 'root',
-      factory: () => signalStoreFactory(featureFactories),
-    });
-
-    return () => inject(SIGNAL_STORE_TOKEN);
+  @Injectable({ providedIn: config.providedIn || null })
+  class SignalStore {
+    constructor() {
+      return signalStoreFactory(featureFactories);
+    }
   }
 
-  if (config.useInjection === undefined) {
-    const SIGNAL_STORE_TOKEN = new InjectionToken('Signal Store');
-
-    return [
-      () => ({
-        provide: SIGNAL_STORE_TOKEN,
-        useFactory: () => signalStoreFactory(featureFactories),
-      }),
-      () => inject(SIGNAL_STORE_TOKEN),
-    ];
-  }
-
-  return signalStoreFactory(featureFactories);
+  return SignalStore;
 }
 
 function signalStoreFactory(featureFactories: SignalStoreFeatureFactory[]) {
@@ -491,12 +400,4 @@ function signalStoreFactory(featureFactories: SignalStoreFeatureFactory[]) {
   injectDestroy().subscribe(() => rootFeature.hooks.onDestroy());
 
   return store;
-}
-
-function isSignalStoreConfig(value: unknown): value is SignalStoreConfig {
-  return (
-    !!value &&
-    typeof value === 'object' &&
-    ('providedIn' in value || 'useInjection' in value)
-  );
 }

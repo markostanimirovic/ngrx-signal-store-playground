@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { injectUsersStore } from './users.store';
+import { UsersStore } from './users.store';
 
 @Component({
   standalone: true,
@@ -32,5 +32,5 @@ import { injectUsersStore } from './users.store';
   `,
 })
 export class UsersComponent {
-  readonly usersStore = injectUsersStore();
+  readonly usersStore = inject(UsersStore);
 }

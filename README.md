@@ -1,4 +1,4 @@
-## @ngrx/signals
+## NgRx SignalStore
 
 Main goals:
 
@@ -24,7 +24,7 @@ Package name suggestions:
 
 ### Contents
 
-- [`signalStore`](#signalstore)
+- [`createSignalStore`](#createsignalstore)
 - [Store Features](#store-features)
   - [DI Config](#di-config)
   - [`update` Function](#update-function)
@@ -32,15 +32,9 @@ Package name suggestions:
 - [Custom Store Features](#custom-store-features)
 - [Entity Management](#entity-management)
 
-### `signalStore`
+### `createSignalStore`
 
-> Other function name suggestions:
->
-> - `store`
-> - `createStore`
-> - `createSignalStore`
-
-The `signalStore` function acts as a pipe that accepts a sequence of store features. By using various store features, we can add state slices, computed state, updaters, effects, hooks, and DI configuration to the signal store.
+The `createSignalStore` function acts as a pipe that accepts a sequence of store features. By using various store features, we can add state slices, computed state, updaters, effects, hooks, and DI configuration to the signal store.
 
 ### Store Features
 
@@ -48,7 +42,7 @@ The `signalStore` function acts as a pipe that accepts a sequence of store featu
 - `withComputed` - accepts the previous state slices and computed properties as factory argument. Returns a dictionary of computed properties.
 
 ```ts
-import { signalStore, withState, withComputed } from '@ngrx/signals';
+import { createSignalStore, withState, withComputed } from '@ngrx/signals';
 import { computed } from '@angular/core';
 
 type UsersState = {
@@ -56,7 +50,7 @@ type UsersState = {
   query: string;
 };
 
-const [provideUsersStore, injectUsersStore] = signalStore(
+const UsersStore = createSignalStore(
   withState<UsersState>({ users: [], query: '' }),
   // we can access previously defined state slices via factory argument
   withComputed(({ users, query }) => ({
@@ -68,10 +62,10 @@ const [provideUsersStore, injectUsersStore] = signalStore(
 );
 
 @Component({
-  providers: [provideUsersStore()],
+  providers: [UsersStore],
 })
 export class UsersComponent {
-  readonly usersStore = injectUsersStore();
+  readonly usersStore = inject(UsersStore);
   // available properties:
   // - state slices:
   //     usersStore.users: Signal<User[]>
@@ -85,16 +79,14 @@ export class UsersComponent {
 
 #### DI Config
 
-In the previous example we saw default behavior - `signalStore` returns a tuple of provide and inject functions that can be further used in the component. However, we can also provide a signal store at the root level or directly get its instance by passing the config object as the first argument of the `signalStore` function.
-
-With `{ providedIn: 'root' }`, `signalStore` will return inject function as a result:
+In the previous example we saw default behavior - `createSignalStore` returns a token that can be further provided and injected where needed. However, we can also provide a signal store at the root level by using `{ providedIn: 'root' }` config:
 
 ```ts
-import { signalStore, withState } from '@ngrx/signals';
+import { createSignalStore, withState } from '@ngrx/signals';
 
 type UsersState = { users: User[]; query: string };
 
-const injectUsersStore = signalStore(
+const UsersStore = createSignalStore(
   { providedIn: 'root' },
   withState<UsersState>({ users: [], query: '' })
 );
@@ -104,23 +96,7 @@ const injectUsersStore = signalStore(
 })
 export class UsersComponent {
   // all consumers will inject the same instance of users store
-  readonly usersStore = injectUsersStore();
-}
-```
-
-There is also an option to get the signal store instance as a result by using `{ useInjection: false }`. This covers the use-case when we want to create a store within a component:
-
-```ts
-@Component({
-  /* ... */
-})
-export class UsersComponent {
-  // 'signalStore' function returns an instance of signal store
-  // when '{ useInjection: false }' is used
-  readonly usersStore = signalStore(
-    { useInjection: false },
-    withState<UsersState>({ users: [], query: '' })
-  );
+  readonly usersStore = inject(UsersStore);
 }
 ```
 
@@ -135,10 +111,10 @@ Examples:
 ```ts
 type UsersState = { users: User[]; callState: CallState };
 
-const usersStore = signalStore(
-  { useInjection: false },
+const UsersStore = createSignalStore(
   withState<UsersState>({ users: [], callState: 'init' })
 );
+const usersStore = inject(UsersStore);
 
 // passing partial state object:
 usersStore.update({ users: ['u1', 'u2'] });
@@ -178,7 +154,7 @@ usersStore.update(removeInactiveUsers(), setLoaded());
 
 ```ts
 import {
-  signalStore,
+  createSignalStore,
   withState,
   withComputed,
   withUpdaters,
@@ -193,7 +169,7 @@ type UsersState = {
   query: string;
 };
 
-const [provideUsersStore, injectUsersStore] = signalStore(
+const UsersStore = createSignalStore(
   withState<UsersState>({ users: [], query: '' }),
   withComputed(({ users, query }) => ({
     filteredUsers: computed(() =>
@@ -229,10 +205,10 @@ const [provideUsersStore, injectUsersStore] = signalStore(
 );
 
 @Component({
-  providers: [provideUsersStore()],
+  providers: [UsersStore],
 })
 export class UsersComponent {
-  readonly usersStore = injectUsersStore();
+  readonly usersStore = inject(UsersStore);
   // available properties and methods:
   // - usersStore.update method
   // - usersStore.users: Signal<User[]>
@@ -243,10 +219,10 @@ export class UsersComponent {
 }
 ```
 
-However, it's not mandatory to use `rxEffect` and RxJS APIs when defining the `signalStore` side effects. We can also create the effect in the following way:
+However, it's not mandatory to use `rxEffect` and RxJS APIs when defining the SignalStore side effects. We can also create the effect in the following way:
 
 ```ts
-const [provideUsersStore, injectUsersStore] = signalStore(
+const UsersStore = createSignalStore(
   withState<UsersState>({ users: [], loading: false }),
   withEffects(({ update }) => ({
     // creating side effect by using async/await approach
@@ -270,7 +246,7 @@ function fetchUsers(): Promise<User[]> {
 
 The `rxEffect` function is a similar API to `ComponentStore.effect`. It provides the ability to manage asynchronous side effects by using RxJS. It returns a function that accepts a static value, signal, or observable as an input argument.
 
-The `rxEffect` function can be used with `signalStore` as we saw above or completely independent. When used within the component injection context, it will clean up subscription on destroy.
+The `rxEffect` function can be used with `createSignalStore` as we saw above or completely independent. When used within the component injection context, it will clean up subscription on destroy.
 
 > The `rxEffect` function can be part of the `@ngrx/signals` / `@ngrx/state` package or `@ngrx/signals/rxjs-interop` / `@ngrx/state/rxjs` subpackage.
 
@@ -366,12 +342,12 @@ function withCallState(): () => {
 This feature can be further used in any signal store that needs call state as follows:
 
 ```ts
-const usersStore = signalStore(
-  { useInjection: false },
+const UsersStore = createSignalStore(
   withState<{ users: string[] }>({ users: [] }),
   withCallState()
 );
 
+const usersStore = inject(UsersStore);
 // usersStore contains following properties:
 // - usersStore.users: Signal<string[]>
 // - usersStore.callState: Signal<CallState>
@@ -402,9 +378,9 @@ Example:
 ```ts
 import { rxEffect } from '@ngrx/signals';
 import { withEntities, setAll, deleteOne } from '@ngrx/signals/entity';
-import { withCallState, setLoading, setLoaded } from './call-state-feature.ts';
+import { withCallState, setLoading, setLoaded } from './call-state-feature';
 
-const [provideUsersStore, injectUsersStore] = signalStore(
+const UsersStore = createSignalStore(
   withEntities<User>(),
   withCallState(),
   withEffects(({ update }) => {
@@ -428,10 +404,10 @@ const [provideUsersStore, injectUsersStore] = signalStore(
     <p *ngIf="usersStore.loading()">Loading ...</p>
     <button (click)="onDeleteOne()">Delete One</button>
   `,
-  providers: [provideUsersStore()],
+  providers: [UsersStore],
 })
 export class UsersComponent implements OnInit {
-  readonly usersStore = injectUsersStore();
+  readonly usersStore = inject(UsersStore);
 
   ngOnInit(): void {
     this.usersStore.loadUsers();
@@ -448,12 +424,12 @@ export class UsersComponent implements OnInit {
 ```ts
 import { withEntities, addOne, deleteOne } from '@ngrx/signals/entity';
 
-const booksStore = signalStore(
-  { useInjection: false },
+const BooksStore = createSignalStore(
   withEntities<Book>({ collection: 'book' }),
   withEntities<Author>({ collection: 'author' })
 );
 
+const booksStore = inject(BooksStore);
 // booksStore contains following properties:
 // - booksStore.bookEntityMap: Signal<Dictionary<Book>>;
 // - booksStore.bookIds: Signal<Array<string | number>>;

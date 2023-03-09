@@ -1,6 +1,6 @@
 import {
   rxEffect,
-  signalStore,
+  createSignalStore,
   SignalStoreUpdate,
   withComputed,
   withEffects,
@@ -26,7 +26,7 @@ const initialState: UsersState = {
   pageSize: 5,
 };
 
-export const injectUsersStore = signalStore(
+export const UsersStore = createSignalStore(
   { providedIn: 'root' },
   withState(initialState),
   withComputed(({ query, pageSize }) => ({

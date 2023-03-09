@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { interval, tap } from 'rxjs';
 import { rxEffect } from '@ngrx/signals';
-import { injectCounterStore, provideCounterStore } from './counter.store';
+import { CounterStore } from './counter.store';
 
 @Component({
   standalone: true,
@@ -12,10 +12,10 @@ import { injectCounterStore, provideCounterStore } from './counter.store';
     <button (click)="counterStore.increment()">Increment</button>
     <button (click)="counterStore.decrement()">Decrement</button>
   `,
-  providers: [provideCounterStore()],
+  providers: [CounterStore],
 })
 export class CounterComponent implements OnInit {
-  readonly counterStore = injectCounterStore();
+  readonly counterStore = inject(CounterStore);
 
   // rxEffect can be also used independently
   private readonly logDoubleCount = rxEffect(
