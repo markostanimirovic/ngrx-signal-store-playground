@@ -9,7 +9,7 @@
 import { effect, Signal } from '@angular/core';
 import { Observable, shareReplay } from 'rxjs';
 
-export function fromSignal<T>(source: Signal<T>): Observable<T> {
+export function toObservable<T>(source: Signal<T>): Observable<T> {
   const signal$ = new Observable<T>((observer) => {
     const watcher = effect(() => {
       try {

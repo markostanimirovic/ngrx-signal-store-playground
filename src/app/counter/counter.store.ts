@@ -1,30 +1,19 @@
-import { computed, effect } from '@angular/core';
-import {
-  createSignalStore,
-  withComputed,
-  withEffects,
-  withHooks,
-  withState,
-  withUpdaters,
-} from '@ngrx/signals';
+import { computed, effect, Injectable } from '@angular/core';
+import { signalStore, withState } from '@ngrx/signals';
 
-export const CounterStore = createSignalStore(
-  withState({ count: 0 }),
-  withComputed(({ count }) => ({
-    doubleCount: computed(() => count() * 2),
-  })),
-  withUpdaters(({ update, count }) => ({
-    increment: () => update((state) => ({ count: state.count + 1 })),
-    // or we can use signal getter as follows:
-    decrement: () => update({ count: count() - 1 }),
-  })),
-  withEffects(({ count }) => ({
-    logCountOnChange() {
-      effect(() => console.log('count changed', count()));
-    },
-  })),
-  withHooks({
-    onInit: ({ logCountOnChange }) => logCountOnChange(),
-    onDestroy: ({ count }) => console.log('count value on destroy', count()),
-  })
-);
+@Injectable()
+export class CounterStore extends signalStore(withState({ count: 0 })) {
+  readonly doubleCount = computed(() => this.count() * 2);
+
+  readonly #logOnCountChange = effect(() => {
+    console.log('count changed', this.count());
+  });
+
+  increment(): void {
+    this.update({ count: this.count() + 1 });
+  }
+
+  decrement(): void {
+    this.update({ count: this.count() - 1 });
+  }
+}

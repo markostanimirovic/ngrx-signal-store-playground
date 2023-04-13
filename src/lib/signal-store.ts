@@ -1,4 +1,4 @@
-import { Injectable, SettableSignal, Type } from '@angular/core';
+import { Injectable, WritableSignal, Type } from '@angular/core';
 import {
   SignalStoreFeature,
   SignalStoreFeatureFactory,
@@ -177,14 +177,14 @@ type F6Result<
     >
   >;
 
-export function createSignalStore<F1 extends SignalStoreFeature>(
+export function signalStore<F1 extends SignalStoreFeature>(
   f1: F1Factory<F1>
 ): Type<F1Result<F1>>;
-export function createSignalStore<
+export function signalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature
 >(f1: F1Factory<F1>, f2: F2Factory<F1, F2>): Type<F2Result<F1, F2>>;
-export function createSignalStore<
+export function signalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature
@@ -193,7 +193,7 @@ export function createSignalStore<
   f2: F2Factory<F1, F2>,
   f3: F3Factory<F1, F2, F3>
 ): Type<F3Result<F1, F2, F3>>;
-export function createSignalStore<
+export function signalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature,
@@ -204,7 +204,7 @@ export function createSignalStore<
   f3: F3Factory<F1, F2, F3>,
   f4: F4Factory<F1, F2, F3, F4>
 ): Type<F4Result<F1, F2, F3, F4>>;
-export function createSignalStore<
+export function signalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature,
@@ -217,7 +217,7 @@ export function createSignalStore<
   f4: F4Factory<F1, F2, F3, F4>,
   f5: F5Factory<F1, F2, F3, F4, F5>
 ): Type<F5Result<F1, F2, F3, F4, F5>>;
-export function createSignalStore<
+export function signalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature,
@@ -233,11 +233,11 @@ export function createSignalStore<
   f6: F6Factory<F1, F2, F3, F4, F5, F6>
 ): Type<F6Result<F1, F2, F3, F4, F5, F6>>;
 
-export function createSignalStore<F1 extends SignalStoreFeature>(
+export function signalStore<F1 extends SignalStoreFeature>(
   config: SignalStoreConfig,
   f1: F1Factory<F1>
 ): Type<F1Result<F1>>;
-export function createSignalStore<
+export function signalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature
 >(
@@ -245,7 +245,7 @@ export function createSignalStore<
   f1: F1Factory<F1>,
   f2: F2Factory<F1, F2>
 ): Type<F2Result<F1, F2>>;
-export function createSignalStore<
+export function signalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature
@@ -255,7 +255,7 @@ export function createSignalStore<
   f2: F2Factory<F1, F2>,
   f3: F3Factory<F1, F2, F3>
 ): Type<F3Result<F1, F2, F3>>;
-export function createSignalStore<
+export function signalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature,
@@ -267,7 +267,7 @@ export function createSignalStore<
   f3: F3Factory<F1, F2, F3>,
   f4: F4Factory<F1, F2, F3, F4>
 ): Type<F4Result<F1, F2, F3, F4>>;
-export function createSignalStore<
+export function signalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature,
@@ -281,7 +281,7 @@ export function createSignalStore<
   f4: F4Factory<F1, F2, F3, F4>,
   f5: F5Factory<F1, F2, F3, F4, F5>
 ): Type<F5Result<F1, F2, F3, F4, F5>>;
-export function createSignalStore<
+export function signalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature,
@@ -298,7 +298,7 @@ export function createSignalStore<
   f6: F6Factory<F1, F2, F3, F4, F5, F6>
 ): Type<F6Result<F1, F2, F3, F4, F5, F6>>;
 
-export function createSignalStore(
+export function signalStore(
   ...args:
     | [SignalStoreConfig, ...SignalStoreFeatureFactory[]]
     | SignalStoreFeatureFactory[]
@@ -346,7 +346,7 @@ function signalStoreFactory(featureFactories: SignalStoreFeatureFactory[]) {
     );
 
     Object.keys(updatedState).forEach((key) => {
-      (rootFeature['state'][key] as SettableSignal<any>).set(updatedState[key]);
+      (rootFeature['state'][key] as WritableSignal<any>).set(updatedState[key]);
     });
   };
 

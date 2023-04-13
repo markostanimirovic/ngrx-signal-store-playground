@@ -1,4 +1,4 @@
-export { createSignalStore } from './signal-store';
+export { signalStore } from './signal-store';
 export { withComputed } from './features/with-computed';
 export { withEffects } from './features/with-effects';
 export { withHooks } from './features/with-hooks';

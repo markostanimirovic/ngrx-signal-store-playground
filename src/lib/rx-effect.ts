@@ -1,4 +1,4 @@
-import { isSignal, Signal } from '@angular/core';
+import { DestroyRef, inject, isSignal, Signal } from '@angular/core';
 import {
   isObservable,
   Observable,
@@ -8,7 +8,7 @@ import {
   takeUntil,
 } from 'rxjs';
 import { injectDestroy } from './inject-destroy';
-import { fromSignal } from './from-signal';
+import { toObservable } from './to-observable';
 
 export function rxEffect<Input>(
   generator: (source$: Observable<Input>) => Observable<unknown>
@@ -35,6 +35,6 @@ function fromRxInput<Input>(
   }
 
   return typeof input === 'function' && isSignal(input)
-    ? fromSignal(input)
+    ? toObservable(input)
     : of(input);
 }
