@@ -13,7 +13,9 @@ export function signalState<State extends Record<string, unknown>>(
   initialState: State
 ): SignalState<State> {
   const stateSignal = signal(initialState, { equal: defaultEqualityFn });
-  const $update = signalStateUpdateFactory(stateSignal);
+  const deepSignal = toDeepSignal(stateSignal);
+  (deepSignal as SignalState<State>).$update =
+    signalStateUpdateFactory(stateSignal);
 
-  return { ...toDeepSignal(stateSignal), $update };
+  return deepSignal as SignalState<State>;
 }

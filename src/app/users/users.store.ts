@@ -1,5 +1,4 @@
 import { signalStore, withHooks, withState } from '@ngrx/signals';
-import { inject } from '@angular/core';
 import { UsersService } from './users.service';
 import { User } from './user.model';
 import { withCallState } from '../shared/call-state.feature';
@@ -12,7 +11,7 @@ export const UsersStore = signalStore(
   withState({ entities: [] as User[] }),
   withCallState(),
   withFilter(),
-  withLoadEntities(() => inject(UsersService)),
+  withLoadEntities(UsersService),
   withHooks({
     // re-fetch users every time when filter signal changes
     onInit: ({ loadEntitiesByFilter, filter }) => loadEntitiesByFilter(filter),

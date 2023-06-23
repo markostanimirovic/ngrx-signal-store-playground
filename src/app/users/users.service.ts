@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 import { User } from './user.model';
 import { Filter } from '../shared/filter.feature';
-import { EntitiesService } from '../shared/load-entities.feature';
+import { EntityService } from '../shared/load-entities.feature';
 
 const usersMock: User[] = [
   { id: 1, name: 'Alex' },
@@ -13,7 +13,7 @@ const usersMock: User[] = [
 ];
 
 @Injectable({ providedIn: 'root' })
-export class UsersService implements EntitiesService<User> {
+export class UsersService implements EntityService<User> {
   getAll(): Promise<User[]> {
     return new Promise((resolve) => {
       setTimeout(() => resolve(usersMock), 1000);
