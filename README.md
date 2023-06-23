@@ -86,10 +86,7 @@ import { createSignalStore, withState } from '@ngrx/signals';
 
 type UsersState = { users: User[]; query: string };
 
-const UsersStore = createSignalStore(
-  { providedIn: 'root' },
-  withState<UsersState>({ users: [], query: '' })
-);
+const UsersStore = createSignalStore({ providedIn: 'root' }, withState<UsersState>({ users: [], query: '' }));
 
 @Component({
   /* ... */
@@ -111,9 +108,7 @@ Examples:
 ```ts
 type UsersState = { users: User[]; callState: CallState };
 
-const UsersStore = createSignalStore(
-  withState<UsersState>({ users: [], callState: 'init' })
-);
+const UsersStore = createSignalStore(withState<UsersState>({ users: [], callState: 'init' }));
 const usersStore = inject(UsersStore);
 
 // passing partial state object:
@@ -153,15 +148,7 @@ usersStore.update(removeInactiveUsers(), setLoaded());
 - `withHooks` - provides the ability to add custom logic on signal store init and/or destroy. Hook factories also accept state slices, computed properties, updaters, and effects.
 
 ```ts
-import {
-  createSignalStore,
-  withState,
-  withComputed,
-  withUpdaters,
-  withEffects,
-  withHooks,
-  rxEffect,
-} from '@ngrx/signals';
+import { createSignalStore, withState, withComputed, withUpdaters, withEffects, withHooks, rxEffect } from '@ngrx/signals';
 import { computed } from '@angular/core';
 
 type UsersState = {
@@ -172,9 +159,7 @@ type UsersState = {
 const UsersStore = createSignalStore(
   withState<UsersState>({ users: [], query: '' }),
   withComputed(({ users, query }) => ({
-    filteredUsers: computed(() =>
-      users().filter(({ name }) => name.includes(query()))
-    ),
+    filteredUsers: computed(() => users().filter(({ name }) => name.includes(query()))),
   })),
   // we can access the 'update' function via updaters/effects
   // factory argument
@@ -199,8 +184,7 @@ const UsersStore = createSignalStore(
   }),
   withHooks({
     onInit: ({ loadUsers }) => loadUsers(),
-    onDestroy: ({ filteredUsers }) =>
-      console.log('users on destroy:', filteredUsers()),
+    onDestroy: ({ filteredUsers }) => console.log('users on destroy:', filteredUsers()),
   })
 );
 
@@ -330,9 +314,7 @@ function withCallState(): () => {
       computed: {
         loading: computed(() => callState() === 'loading'),
         loaded: computed(() => callState() === 'loaded'),
-        error: computed(() =>
-          typeof callState() === 'object' ? callState().error : null
-        ),
+        error: computed(() => (typeof callState() === 'object' ? callState().error : null)),
       },
     };
   };
@@ -342,10 +324,7 @@ function withCallState(): () => {
 This feature can be further used in any signal store that needs call state as follows:
 
 ```ts
-const UsersStore = createSignalStore(
-  withState<{ users: string[] }>({ users: [] }),
-  withCallState()
-);
+const UsersStore = createSignalStore(withState<{ users: string[] }>({ users: [] }), withCallState());
 
 const usersStore = inject(UsersStore);
 // usersStore contains following properties:
@@ -424,10 +403,7 @@ export class UsersComponent implements OnInit {
 ```ts
 import { withEntities, addOne, deleteOne } from '@ngrx/signals/entity';
 
-const BooksStore = createSignalStore(
-  withEntities<Book>({ collection: 'book' }),
-  withEntities<Author>({ collection: 'author' })
-);
+const BooksStore = createSignalStore(withEntities<Book>({ collection: 'book' }), withEntities<Author>({ collection: 'author' }));
 
 const booksStore = inject(BooksStore);
 // booksStore contains following properties:

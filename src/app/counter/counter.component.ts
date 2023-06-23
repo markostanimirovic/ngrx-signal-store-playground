@@ -1,4 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { interval, tap } from 'rxjs';
 import { rxEffect } from '@ngrx/signals';
 import { CounterStore } from './counter.store';
@@ -12,6 +17,7 @@ import { CounterStore } from './counter.store';
     <button (click)="counterStore.increment()">Increment</button>
     <button (click)="counterStore.decrement()">Decrement</button>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [CounterStore],
 })
 export class CounterComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
@@ -12,5 +12,6 @@ import { RouterLink, RouterOutlet } from '@angular/router';
     </div>
     <router-outlet></router-outlet>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {}
