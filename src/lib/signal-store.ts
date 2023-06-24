@@ -7,12 +7,6 @@ import {
   Type,
 } from '@angular/core';
 import {
-  F1Factory,
-  F2Factory,
-  F3Factory,
-  F4Factory,
-  F5Factory,
-  F6Factory,
   SignalStoreFeature,
   SignalStoreFeatureFactory,
   SignalStoreFeatureInput,
@@ -37,24 +31,27 @@ type SignalStore<Features extends SignalStoreFeature[]> = SignalStateUpdate<
 
 type SignalStoreFeatureResult<
   Feature extends SignalStoreFeature,
-  Input extends SignalStoreFeatureInput<Feature> = SignalStoreFeatureInput<Feature>
-> = Input['slices'] & Input['signals'] & Input['methods'];
+  FeatureInput extends SignalStoreFeatureInput<Feature> = SignalStoreFeatureInput<Feature>
+> = FeatureInput['slices'] & FeatureInput['signals'] & FeatureInput['methods'];
 
 export function signalStore<F1 extends SignalStoreFeature>(
-  f1: F1Factory<F1>
+  f1: SignalStoreFeatureFactory<[], F1>
 ): Type<SignalStore<[F1]>>;
 export function signalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature
->(f1: F1Factory<F1>, f2: F2Factory<F1, F2>): Type<SignalStore<[F1, F2]>>;
+>(
+  f1: SignalStoreFeatureFactory<[], F1>,
+  f2: SignalStoreFeatureFactory<[F1], F2>
+): Type<SignalStore<[F1, F2]>>;
 export function signalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature,
   F3 extends SignalStoreFeature
 >(
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>,
-  f3: F3Factory<F1, F2, F3>
+  f1: SignalStoreFeatureFactory<[], F1>,
+  f2: SignalStoreFeatureFactory<[F1], F2>,
+  f3: SignalStoreFeatureFactory<[F1, F2], F3>
 ): Type<SignalStore<[F1, F2, F3]>>;
 export function signalStore<
   F1 extends SignalStoreFeature,
@@ -62,10 +59,10 @@ export function signalStore<
   F3 extends SignalStoreFeature,
   F4 extends SignalStoreFeature
 >(
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>,
-  f3: F3Factory<F1, F2, F3>,
-  f4: F4Factory<F1, F2, F3, F4>
+  f1: SignalStoreFeatureFactory<[], F1>,
+  f2: SignalStoreFeatureFactory<[F1], F2>,
+  f3: SignalStoreFeatureFactory<[F1, F2], F3>,
+  f4: SignalStoreFeatureFactory<[F1, F2, F3], F4>
 ): Type<SignalStore<[F1, F2, F3, F4]>>;
 export function signalStore<
   F1 extends SignalStoreFeature,
@@ -74,11 +71,11 @@ export function signalStore<
   F4 extends SignalStoreFeature,
   F5 extends SignalStoreFeature
 >(
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>,
-  f3: F3Factory<F1, F2, F3>,
-  f4: F4Factory<F1, F2, F3, F4>,
-  f5: F5Factory<F1, F2, F3, F4, F5>
+  f1: SignalStoreFeatureFactory<[], F1>,
+  f2: SignalStoreFeatureFactory<[F1], F2>,
+  f3: SignalStoreFeatureFactory<[F1, F2], F3>,
+  f4: SignalStoreFeatureFactory<[F1, F2, F3], F4>,
+  f5: SignalStoreFeatureFactory<[F1, F2, F3, F4], F5>
 ): Type<SignalStore<[F1, F2, F3, F4, F5]>>;
 export function signalStore<
   F1 extends SignalStoreFeature,
@@ -88,25 +85,25 @@ export function signalStore<
   F5 extends SignalStoreFeature,
   F6 extends SignalStoreFeature
 >(
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>,
-  f3: F3Factory<F1, F2, F3>,
-  f4: F4Factory<F1, F2, F3, F4>,
-  f5: F5Factory<F1, F2, F3, F4, F5>,
-  f6: F6Factory<F1, F2, F3, F4, F5, F6>
+  f1: SignalStoreFeatureFactory<[], F1>,
+  f2: SignalStoreFeatureFactory<[F1], F2>,
+  f3: SignalStoreFeatureFactory<[F1, F2], F3>,
+  f4: SignalStoreFeatureFactory<[F1, F2, F3], F4>,
+  f5: SignalStoreFeatureFactory<[F1, F2, F3, F4], F5>,
+  f6: SignalStoreFeatureFactory<[F1, F2, F3, F4, F5], F6>
 ): Type<SignalStore<[F1, F2, F3, F4, F5, F6]>>;
 
 export function signalStore<F1 extends SignalStoreFeature>(
   config: SignalStoreConfig,
-  f1: F1Factory<F1>
+  f1: SignalStoreFeatureFactory<[], F1>
 ): Type<SignalStore<[F1]>>;
 export function signalStore<
   F1 extends SignalStoreFeature,
   F2 extends SignalStoreFeature
 >(
   config: SignalStoreConfig,
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>
+  f1: SignalStoreFeatureFactory<[], F1>,
+  f2: SignalStoreFeatureFactory<[F1], F2>
 ): Type<SignalStore<[F1, F2]>>;
 export function signalStore<
   F1 extends SignalStoreFeature,
@@ -114,9 +111,9 @@ export function signalStore<
   F3 extends SignalStoreFeature
 >(
   config: SignalStoreConfig,
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>,
-  f3: F3Factory<F1, F2, F3>
+  f1: SignalStoreFeatureFactory<[], F1>,
+  f2: SignalStoreFeatureFactory<[F1], F2>,
+  f3: SignalStoreFeatureFactory<[F1, F2], F3>
 ): Type<SignalStore<[F1, F2, F3]>>;
 export function signalStore<
   F1 extends SignalStoreFeature,
@@ -125,10 +122,10 @@ export function signalStore<
   F4 extends SignalStoreFeature
 >(
   config: SignalStoreConfig,
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>,
-  f3: F3Factory<F1, F2, F3>,
-  f4: F4Factory<F1, F2, F3, F4>
+  f1: SignalStoreFeatureFactory<[], F1>,
+  f2: SignalStoreFeatureFactory<[F1], F2>,
+  f3: SignalStoreFeatureFactory<[F1, F2], F3>,
+  f4: SignalStoreFeatureFactory<[F1, F2, F3], F4>
 ): Type<SignalStore<[F1, F2, F3, F4]>>;
 export function signalStore<
   F1 extends SignalStoreFeature,
@@ -138,11 +135,11 @@ export function signalStore<
   F5 extends SignalStoreFeature
 >(
   config: SignalStoreConfig,
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>,
-  f3: F3Factory<F1, F2, F3>,
-  f4: F4Factory<F1, F2, F3, F4>,
-  f5: F5Factory<F1, F2, F3, F4, F5>
+  f1: SignalStoreFeatureFactory<[], F1>,
+  f2: SignalStoreFeatureFactory<[F1], F2>,
+  f3: SignalStoreFeatureFactory<[F1, F2], F3>,
+  f4: SignalStoreFeatureFactory<[F1, F2, F3], F4>,
+  f5: SignalStoreFeatureFactory<[F1, F2, F3, F4], F5>
 ): Type<SignalStore<[F1, F2, F3, F4, F5]>>;
 export function signalStore<
   F1 extends SignalStoreFeature,
@@ -153,23 +150,36 @@ export function signalStore<
   F6 extends SignalStoreFeature
 >(
   config: SignalStoreConfig,
-  f1: F1Factory<F1>,
-  f2: F2Factory<F1, F2>,
-  f3: F3Factory<F1, F2, F3>,
-  f4: F4Factory<F1, F2, F3, F4>,
-  f5: F5Factory<F1, F2, F3, F4, F5>,
-  f6: F6Factory<F1, F2, F3, F4, F5, F6>
+  f1: SignalStoreFeatureFactory<[], F1>,
+  f2: SignalStoreFeatureFactory<[F1], F2>,
+  f3: SignalStoreFeatureFactory<[F1, F2], F3>,
+  f4: SignalStoreFeatureFactory<[F1, F2, F3], F4>,
+  f5: SignalStoreFeatureFactory<[F1, F2, F3, F4], F5>,
+  f6: SignalStoreFeatureFactory<[F1, F2, F3, F4, F5], F6>
 ): Type<SignalStore<[F1, F2, F3, F4, F5, F6]>>;
 
 export function signalStore(
   ...args:
-    | [SignalStoreConfig, ...SignalStoreFeatureFactory[]]
-    | SignalStoreFeatureFactory[]
+    | [
+        SignalStoreConfig,
+        ...Array<SignalStoreFeatureFactory | SignalStoreFeatureFactory[]>
+      ]
+    | Array<SignalStoreFeatureFactory | SignalStoreFeatureFactory[]>
 ) {
   const [config, ...featureFactories] =
     'providedIn' in args[0]
-      ? [args[0], ...(args.slice(1) as SignalStoreFeatureFactory[])]
-      : [{}, ...(args as SignalStoreFeatureFactory[])];
+      ? [
+          args[0],
+          ...(args.slice(1) as Array<
+            SignalStoreFeatureFactory | SignalStoreFeatureFactory[]
+          >),
+        ]
+      : [
+          {},
+          ...(args as Array<
+            SignalStoreFeatureFactory | SignalStoreFeatureFactory[]
+          >),
+        ];
 
   @Injectable({ providedIn: config.providedIn || null })
   class SignalStore {

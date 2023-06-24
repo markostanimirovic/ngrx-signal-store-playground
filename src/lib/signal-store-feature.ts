@@ -1,6 +1,7 @@
 import { Signal } from '@angular/core';
 import { SignalStateUpdate } from './signal-state-update';
 import { DeepSignal } from './deep-signal';
+import { ToIntersection } from './models';
 
 export type SignalStoreFeature = {
   state?: Record<string, unknown>;
@@ -12,11 +13,8 @@ export type SignalStoreFeature = {
   };
 };
 
-export type EmptySignalStoreFeature = {
-  state: {};
-  signals: {};
-  methods: {};
-  hooks: {};
+export type SignalStoreSlices<State> = {
+  [Key in keyof State]: DeepSignal<State[Key]>;
 };
 
 export type SignalStoreFeatureInput<
@@ -30,122 +28,89 @@ export type SignalStoreFeatureInput<
   methods: Methods;
 };
 
-export type SignalStoreFeatureFactory = (
-  input: SignalStoreFeatureInput<{
-    state: Record<string, unknown>;
-    signals: Record<string, Signal<any>>;
-    methods: Record<string, (...args: any[]) => any>;
-  }>
-) => SignalStoreFeature;
+export type SignalStoreFeatureFactory<
+  PreviousFeatures extends SignalStoreFeature[] = [],
+  Feature extends SignalStoreFeature = SignalStoreFeature
+> = (
+  featureInput: SignalStoreFeatureInput<
+    EmptySignalStoreFeature & ToIntersection<PreviousFeatures>
+  >
+) => Feature;
 
-export type SignalStoreSlices<State> = {
-  [Key in keyof State]: DeepSignal<State[Key]>;
+type EmptySignalStoreFeature = {
+  state: {};
+  signals: {};
+  methods: {};
+  hooks: {};
 };
 
-export type F1Factory<F1 extends SignalStoreFeature> = (
-  input: SignalStoreFeatureInput<EmptySignalStoreFeature>
-) => F1;
-
-export type F2Factory<
-  F1 extends SignalStoreFeature,
-  F2 extends SignalStoreFeature,
-  F2Input extends SignalStoreFeature = EmptySignalStoreFeature & F1
-> = (input: SignalStoreFeatureInput<F2Input>) => F2;
-
-export type F3Factory<
-  F1 extends SignalStoreFeature,
-  F2 extends SignalStoreFeature,
-  F3 extends SignalStoreFeature,
-  F3Input extends SignalStoreFeature = EmptySignalStoreFeature & F1 & F2
-> = (input: SignalStoreFeatureInput<F3Input>) => F3;
-
-export type F4Factory<
-  F1 extends SignalStoreFeature,
-  F2 extends SignalStoreFeature,
-  F3 extends SignalStoreFeature,
-  F4 extends SignalStoreFeature,
-  F4Input extends SignalStoreFeature = EmptySignalStoreFeature & F1 & F2 & F3
-> = (input: SignalStoreFeatureInput<F4Input>) => F4;
-
-export type F5Factory<
-  F1 extends SignalStoreFeature,
-  F2 extends SignalStoreFeature,
-  F3 extends SignalStoreFeature,
-  F4 extends SignalStoreFeature,
-  F5 extends SignalStoreFeature,
-  F5Input extends SignalStoreFeature = EmptySignalStoreFeature &
-    F1 &
-    F2 &
-    F3 &
-    F4
-> = (input: SignalStoreFeatureInput<F5Input>) => F5;
-
-export type F6Factory<
-  F1 extends SignalStoreFeature,
-  F2 extends SignalStoreFeature,
-  F3 extends SignalStoreFeature,
-  F4 extends SignalStoreFeature,
-  F5 extends SignalStoreFeature,
-  F6 extends SignalStoreFeature,
-  F6Input extends SignalStoreFeature = EmptySignalStoreFeature &
-    F1 &
-    F2 &
-    F3 &
-    F4 &
-    F5
-> = (input: SignalStoreFeatureInput<F6Input>) => F6;
-
 export function signalStoreFeatureFactory<
-  F1 extends Omit<SignalStoreFeature, 'hooks'> = {},
-  Input extends SignalStoreFeatureInput<F1> = SignalStoreFeatureInput<F1>
+  InputFeature extends SignalStoreFeature = {}
 >() {
-  function signalStoreFeature<F2 extends SignalStoreFeature>(
-    f2: F2Factory<F1, F2>
-  ): (featureInput: Input) => F2;
+  function signalStoreFeature<F1 extends SignalStoreFeature>(
+    f1: SignalStoreFeatureFactory<[InputFeature], F1>
+  ): (featureInput: SignalStoreFeatureInput<InputFeature>) => F1;
   function signalStoreFeature<
+    F1 extends SignalStoreFeature,
+    F2 extends SignalStoreFeature
+  >(
+    f1: SignalStoreFeatureFactory<[InputFeature], F1>,
+    f2: SignalStoreFeatureFactory<[InputFeature, F1], F2>
+  ): (featureInput: SignalStoreFeatureInput<InputFeature>) => F1 & F2;
+  function signalStoreFeature<
+    F1 extends SignalStoreFeature,
     F2 extends SignalStoreFeature,
     F3 extends SignalStoreFeature
   >(
-    f2: F2Factory<F1, F2>,
-    f3: F3Factory<F1, F2, F3>
-  ): (featureInput: Input) => F2 & F3;
+    f1: SignalStoreFeatureFactory<[InputFeature], F1>,
+    f2: SignalStoreFeatureFactory<[InputFeature, F1], F2>,
+    f3: SignalStoreFeatureFactory<[InputFeature, F1, F2], F3>
+  ): (featureInput: SignalStoreFeatureInput<InputFeature>) => F1 & F2 & F3;
   function signalStoreFeature<
+    F1 extends SignalStoreFeature,
     F2 extends SignalStoreFeature,
     F3 extends SignalStoreFeature,
     F4 extends SignalStoreFeature
   >(
-    f2: F2Factory<F1, F2>,
-    f3: F3Factory<F1, F2, F3>,
-    f4: F4Factory<F1, F2, F3, F4>
-  ): (featureInput: Input) => F2 & F3 & F4;
+    f1: SignalStoreFeatureFactory<[InputFeature], F1>,
+    f2: SignalStoreFeatureFactory<[InputFeature, F1], F2>,
+    f3: SignalStoreFeatureFactory<[InputFeature, F1, F2], F3>,
+    f4: SignalStoreFeatureFactory<[InputFeature, F1, F2, F3], F4>
+  ): (featureInput: SignalStoreFeatureInput<InputFeature>) => F1 & F2 & F3 & F4;
   function signalStoreFeature<
+    F1 extends SignalStoreFeature,
     F2 extends SignalStoreFeature,
     F3 extends SignalStoreFeature,
     F4 extends SignalStoreFeature,
     F5 extends SignalStoreFeature
   >(
-    f2: F2Factory<F1, F2>,
-    f3: F3Factory<F1, F2, F3>,
-    f4: F4Factory<F1, F2, F3, F4>,
-    f5: F5Factory<F1, F2, F3, F4, F5>
-  ): (featureInput: Input) => F2 & F3 & F4 & F5;
+    f1: SignalStoreFeatureFactory<[InputFeature], F1>,
+    f2: SignalStoreFeatureFactory<[InputFeature, F1], F2>,
+    f3: SignalStoreFeatureFactory<[InputFeature, F1, F2], F3>,
+    f4: SignalStoreFeatureFactory<[InputFeature, F1, F2, F3], F4>,
+    f5: SignalStoreFeatureFactory<[InputFeature, F1, F2, F3, F4], F5>
+  ): (
+    featureInput: SignalStoreFeatureInput<InputFeature>
+  ) => F1 & F2 & F3 & F4 & F5;
   function signalStoreFeature<
+    F1 extends SignalStoreFeature,
     F2 extends SignalStoreFeature,
     F3 extends SignalStoreFeature,
     F4 extends SignalStoreFeature,
     F5 extends SignalStoreFeature,
     F6 extends SignalStoreFeature
   >(
-    f2: F2Factory<F1, F2>,
-    f3: F3Factory<F1, F2, F3>,
-    f4: F4Factory<F1, F2, F3, F4>,
-    f5: F5Factory<F1, F2, F3, F4, F5>,
-    f6: F6Factory<F1, F2, F3, F4, F5, F6>
-  ): (featureInput: Input) => F2 & F3 & F4 & F5 & F6;
-  function signalStoreFeature(
-    ...featureFactories: SignalStoreFeatureFactory[]
-  ) {
-    return featureFactories as unknown;
+    f1: SignalStoreFeatureFactory<[InputFeature], F1>,
+    f2: SignalStoreFeatureFactory<[InputFeature, F1], F2>,
+    f3: SignalStoreFeatureFactory<[InputFeature, F1, F2], F3>,
+    f4: SignalStoreFeatureFactory<[InputFeature, F1, F2, F3], F4>,
+    f5: SignalStoreFeatureFactory<[InputFeature, F1, F2, F3, F4], F5>,
+    f6: SignalStoreFeatureFactory<[InputFeature, F1, F2, F3, F4, F5], F6>
+  ): (
+    featureInput: SignalStoreFeatureInput<InputFeature>
+  ) => F1 & F2 & F3 & F4 & F5 & F6;
+  function signalStoreFeature(...featureFactories: unknown[]): unknown {
+    return featureFactories;
   }
 
   return signalStoreFeature;
