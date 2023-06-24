@@ -18,7 +18,7 @@ export function withLoadEntities<T>(
   entityServiceClass: Type<EntityService<T>>
 ) {
   const loadEntitiesFeature = signalStoreFeatureFactory<{
-    // if some of the expected input state slices that don't exist in the store
+    // if some of the specified input state slices don't exist in the store where
     // `withLoadEntities` feature is used, the compilation error will be thrown
     state: { entities: T[]; callState: CallState };
   }>();

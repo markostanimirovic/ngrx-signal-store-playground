@@ -108,7 +108,9 @@ export function signalStoreFeatureFactory<
   ): (
     featureInput: SignalStoreFeatureInput<InputFeature>
   ) => F1 & F2 & F3 & F4 & F5 & F6;
-  function signalStoreFeature(...featureFactories: unknown[]): unknown {
+  function signalStoreFeature(
+    ...featureFactories: SignalStoreFeatureFactory[]
+  ): SignalStoreFeatureFactory | SignalStoreFeatureFactory[] {
     return featureFactories;
   }
 
