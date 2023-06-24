@@ -17,16 +17,16 @@ export interface EntityService<T> {
 export function withLoadEntities<T>(
   entityServiceClass: Type<EntityService<T>>
 ) {
-  const loadEntitiesFeatureFactory = signalStoreFeatureFactory<{
+  const loadEntitiesFeature = signalStoreFeatureFactory<{
     // if some of the expected input state slices that don't exist in the store
     // `withLoadEntities` feature is used, the compilation error will be thrown
     state: { entities: T[]; callState: CallState };
   }>();
 
-  return loadEntitiesFeatureFactory(
+  return loadEntitiesFeature(
     withMethods(({ $update }, entityService = inject(entityServiceClass)) => ({
       // We can use `rxEffect` to create side effects by using RxJS APIs.
-      loadEntitiesByFilter: rxEffect<Filter>(
+      loadByFilter: rxEffect<Filter>(
         pipe(
           debounceTime(300),
           tap(() => $update(setLoading())),
@@ -35,7 +35,7 @@ export function withLoadEntities<T>(
         )
       ),
       // However, that's not mandatory. We can also perform async effects without RxJS:
-      async loadAllEntities() {
+      async loadAll() {
         $update(setLoading());
         const entities = await entityService.getAll();
         $update({ entities }, setLoaded());

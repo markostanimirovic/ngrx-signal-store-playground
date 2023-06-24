@@ -12,7 +12,7 @@ import { UsersStore } from './users.store';
     <input
       placeholder="Search..."
       [ngModel]="usersStore.filter.query()"
-      (ngModelChange)="usersStore.patchFilter({ query: $event })"
+      (ngModelChange)="usersStore.updateFilter({ query: $event })"
     />
     <span *ngIf="usersStore.isLoading()">Loading ...</span>
 
@@ -24,7 +24,7 @@ import { UsersStore } from './users.store';
       <button
         *ngFor="let pageSize of [1, 3, 5]"
         [class.active]="pageSize === usersStore.filter.pageSize()"
-        (click)="usersStore.patchFilter({ pageSize })"
+        (click)="usersStore.updateFilter({ pageSize })"
       >
         {{ pageSize }}
       </button>

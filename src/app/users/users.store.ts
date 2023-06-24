@@ -13,7 +13,9 @@ export const UsersStore = signalStore(
   withFilter(),
   withLoadEntities(UsersService),
   withHooks({
-    // re-fetch users every time when filter signal changes
-    onInit: ({ loadEntitiesByFilter, filter }) => loadEntitiesByFilter(filter),
+    onInit({ loadByFilter, filter }) {
+      // re-fetch users every time when filter signal changes
+      loadByFilter(filter);
+    },
   })
 );

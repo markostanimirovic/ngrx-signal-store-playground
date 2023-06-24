@@ -1,5 +1,6 @@
 import {
   selectSignal,
+  SignalStateUpdater,
   signalStoreFeatureFactory,
   withSignals,
   withState,
@@ -8,9 +9,9 @@ import {
 export type CallState = 'init' | 'loading' | 'loaded' | 'error';
 
 export function withCallState() {
-  const callStateFeatureFactory = signalStoreFeatureFactory();
+  const callStateFeature = signalStoreFeatureFactory();
 
-  return callStateFeatureFactory(
+  return callStateFeature(
     withState({ callState: 'init' as CallState }),
     withSignals(({ callState }) => ({
       isLoading: selectSignal(() => callState() === 'loading'),
@@ -20,14 +21,14 @@ export function withCallState() {
   );
 }
 
-export function setLoading(): { callState: CallState } {
+export function setLoading(): SignalStateUpdater<{ callState: CallState }> {
   return { callState: 'loading' };
 }
 
-export function setLoaded(): { callState: CallState } {
+export function setLoaded(): SignalStateUpdater<{ callState: CallState }> {
   return { callState: 'loaded' };
 }
 
-export function setError(): { callState: CallState } {
+export function setError(): SignalStateUpdater<{ callState: CallState }> {
   return { callState: 'error' };
 }

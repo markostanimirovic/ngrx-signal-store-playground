@@ -1,4 +1,5 @@
 import {
+  SignalStateUpdater,
   signalStoreFeatureFactory,
   withMethods,
   withState,
@@ -8,17 +9,20 @@ export type Filter = { query: string; pageSize: number };
 const initialFilter: Filter = { query: '', pageSize: 5 };
 
 export function withFilter() {
-  const filterFeatureFactory = signalStoreFeatureFactory();
+  const filterFeature = signalStoreFeatureFactory();
 
-  return filterFeatureFactory(
+  return filterFeature(
     withState({ filter: initialFilter }),
     withMethods(({ $update }) => ({
-      patchFilter(partialFilter: Partial<Filter>) {
-        $update((state) => ({
-          ...state,
-          filter: { ...state.filter, ...partialFilter },
-        }));
+      updateFilter(partialFilter: Partial<Filter>): void {
+        $update(patchFilter(partialFilter));
       },
     }))
   );
+}
+
+function patchFilter(partialFilter: Partial<Filter>): SignalStateUpdater<{
+  filter: Filter;
+}> {
+  return (state) => ({ filter: { ...state.filter, ...partialFilter } });
 }

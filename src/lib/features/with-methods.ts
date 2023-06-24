@@ -12,10 +12,10 @@ export function withMethods<
   Methods extends Record<string, (...args: any[]) => any>
 >(
   methodsFactory: (
-    input: SignalStoreSlices<State> &
+    input: SignalStateUpdate<State> &
+      SignalStoreSlices<State> &
       Signals &
-      PreviousMethods &
-      SignalStateUpdate<State>
+      PreviousMethods
   ) => Methods
 ): (
   featureInput: SignalStoreFeatureInput<{

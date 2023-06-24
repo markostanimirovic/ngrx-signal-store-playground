@@ -1,5 +1,5 @@
 import { Signal } from '@angular/core';
-import { SignalStateUpdateFn } from './signal-state-update';
+import { SignalStateUpdate } from './signal-state-update';
 import { DeepSignal } from './deep-signal';
 
 export type SignalStoreFeature = {
@@ -24,8 +24,7 @@ export type SignalStoreFeatureInput<
   State = 'state' extends keyof Feature ? Feature['state'] : {},
   Signals = 'signals' extends keyof Feature ? Feature['signals'] : {},
   Methods = 'methods' extends keyof Feature ? Feature['methods'] : {}
-> = {
-  $update: SignalStateUpdateFn<State>;
+> = SignalStateUpdate<State> & {
   slices: SignalStoreSlices<State>;
   signals: Signals;
   methods: Methods;
@@ -97,7 +96,7 @@ export type F6Factory<
 > = (input: SignalStoreFeatureInput<F6Input>) => F6;
 
 export function signalStoreFeatureFactory<
-  F1 extends SignalStoreFeature = {},
+  F1 extends Omit<SignalStoreFeature, 'hooks'> = {},
   Input extends SignalStoreFeatureInput<F1> = SignalStoreFeatureInput<F1>
 >() {
   function signalStoreFeature<F2 extends SignalStoreFeature>(
@@ -146,7 +145,7 @@ export function signalStoreFeatureFactory<
   function signalStoreFeature(
     ...featureFactories: SignalStoreFeatureFactory[]
   ) {
-    return featureFactories as any;
+    return featureFactories as unknown;
   }
 
   return signalStoreFeature;

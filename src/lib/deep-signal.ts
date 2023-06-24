@@ -1,5 +1,6 @@
 import { Signal } from '@angular/core';
 import { selectSignal } from './select-signal';
+import { isRecord } from './helpers';
 
 export type DeepSignal<T> = T extends Record<string, unknown>
   ? Signal<T> & { [K in keyof T]: DeepSignal<T[K]> }
@@ -17,8 +18,4 @@ export function toDeepSignal<T>(signal: Signal<T>): DeepSignal<T> {
         : target[prop];
     },
   });
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value?.constructor === Object;
 }

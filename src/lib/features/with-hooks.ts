@@ -11,16 +11,16 @@ export function withHooks<
   Methods extends Record<string, (...args: any[]) => any>
 >(hooks: {
   onInit?: (
-    input: SignalStoreSlices<State> &
+    input: SignalStateUpdate<State> &
+      SignalStoreSlices<State> &
       Signals &
-      Methods &
-      SignalStateUpdate<State>
+      Methods
   ) => void;
   onDestroy?: (
-    input: SignalStoreSlices<State> &
+    input: SignalStateUpdate<State> &
+      SignalStoreSlices<State> &
       Signals &
-      Methods &
-      SignalStateUpdate<State>
+      Methods
   ) => void;
 }): (
   featureInput: SignalStoreFeatureInput<{

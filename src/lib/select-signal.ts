@@ -1,5 +1,5 @@
 import { computed, Signal, ValueEqualityFn } from '@angular/core';
-import { defaultEqualityFn } from './equality-fn';
+import { defaultEqualityFn } from './helpers';
 
 type SelectSignalConfig<T> = { equal: ValueEqualityFn<T> };
 
