@@ -1,7 +1,6 @@
 import { Signal } from '@angular/core';
 import { SignalStateUpdate } from './signal-state-update';
 import { DeepSignal } from './deep-signal';
-import { ToIntersection } from './models';
 
 export type SignalStoreFeature = {
   state?: Record<string, unknown>;
@@ -29,11 +28,11 @@ export type SignalStoreFeatureInput<
 };
 
 export type SignalStoreFeatureFactory<
-  PreviousFeatures extends SignalStoreFeature[] = [],
+  PreviousFeature extends SignalStoreFeature = SignalStoreFeature,
   Feature extends SignalStoreFeature = SignalStoreFeature
 > = (
   featureInput: SignalStoreFeatureInput<
-    EmptySignalStoreFeature & ToIntersection<PreviousFeatures>
+    EmptySignalStoreFeature & PreviousFeature
   >
 ) => Feature;
 
@@ -48,23 +47,23 @@ export function signalStoreFeatureFactory<
   InputFeature extends SignalStoreFeature = {}
 >() {
   function signalStoreFeature<F1 extends SignalStoreFeature>(
-    f1: SignalStoreFeatureFactory<[InputFeature], F1>
+    f1: SignalStoreFeatureFactory<InputFeature, F1>
   ): (featureInput: SignalStoreFeatureInput<InputFeature>) => F1;
   function signalStoreFeature<
     F1 extends SignalStoreFeature,
     F2 extends SignalStoreFeature
   >(
-    f1: SignalStoreFeatureFactory<[InputFeature], F1>,
-    f2: SignalStoreFeatureFactory<[InputFeature, F1], F2>
+    f1: SignalStoreFeatureFactory<InputFeature, F1>,
+    f2: SignalStoreFeatureFactory<InputFeature & F1, F2>
   ): (featureInput: SignalStoreFeatureInput<InputFeature>) => F1 & F2;
   function signalStoreFeature<
     F1 extends SignalStoreFeature,
     F2 extends SignalStoreFeature,
     F3 extends SignalStoreFeature
   >(
-    f1: SignalStoreFeatureFactory<[InputFeature], F1>,
-    f2: SignalStoreFeatureFactory<[InputFeature, F1], F2>,
-    f3: SignalStoreFeatureFactory<[InputFeature, F1, F2], F3>
+    f1: SignalStoreFeatureFactory<InputFeature, F1>,
+    f2: SignalStoreFeatureFactory<InputFeature & F1, F2>,
+    f3: SignalStoreFeatureFactory<InputFeature & F1 & F2, F3>
   ): (featureInput: SignalStoreFeatureInput<InputFeature>) => F1 & F2 & F3;
   function signalStoreFeature<
     F1 extends SignalStoreFeature,
@@ -72,10 +71,10 @@ export function signalStoreFeatureFactory<
     F3 extends SignalStoreFeature,
     F4 extends SignalStoreFeature
   >(
-    f1: SignalStoreFeatureFactory<[InputFeature], F1>,
-    f2: SignalStoreFeatureFactory<[InputFeature, F1], F2>,
-    f3: SignalStoreFeatureFactory<[InputFeature, F1, F2], F3>,
-    f4: SignalStoreFeatureFactory<[InputFeature, F1, F2, F3], F4>
+    f1: SignalStoreFeatureFactory<InputFeature, F1>,
+    f2: SignalStoreFeatureFactory<InputFeature & F1, F2>,
+    f3: SignalStoreFeatureFactory<InputFeature & F1 & F2, F3>,
+    f4: SignalStoreFeatureFactory<InputFeature & F1 & F2 & F3, F4>
   ): (featureInput: SignalStoreFeatureInput<InputFeature>) => F1 & F2 & F3 & F4;
   function signalStoreFeature<
     F1 extends SignalStoreFeature,
@@ -84,11 +83,11 @@ export function signalStoreFeatureFactory<
     F4 extends SignalStoreFeature,
     F5 extends SignalStoreFeature
   >(
-    f1: SignalStoreFeatureFactory<[InputFeature], F1>,
-    f2: SignalStoreFeatureFactory<[InputFeature, F1], F2>,
-    f3: SignalStoreFeatureFactory<[InputFeature, F1, F2], F3>,
-    f4: SignalStoreFeatureFactory<[InputFeature, F1, F2, F3], F4>,
-    f5: SignalStoreFeatureFactory<[InputFeature, F1, F2, F3, F4], F5>
+    f1: SignalStoreFeatureFactory<InputFeature, F1>,
+    f2: SignalStoreFeatureFactory<InputFeature & F1, F2>,
+    f3: SignalStoreFeatureFactory<InputFeature & F1 & F2, F3>,
+    f4: SignalStoreFeatureFactory<InputFeature & F1 & F2 & F3, F4>,
+    f5: SignalStoreFeatureFactory<InputFeature & F1 & F2 & F3 & F4, F5>
   ): (
     featureInput: SignalStoreFeatureInput<InputFeature>
   ) => F1 & F2 & F3 & F4 & F5;
@@ -100,12 +99,12 @@ export function signalStoreFeatureFactory<
     F5 extends SignalStoreFeature,
     F6 extends SignalStoreFeature
   >(
-    f1: SignalStoreFeatureFactory<[InputFeature], F1>,
-    f2: SignalStoreFeatureFactory<[InputFeature, F1], F2>,
-    f3: SignalStoreFeatureFactory<[InputFeature, F1, F2], F3>,
-    f4: SignalStoreFeatureFactory<[InputFeature, F1, F2, F3], F4>,
-    f5: SignalStoreFeatureFactory<[InputFeature, F1, F2, F3, F4], F5>,
-    f6: SignalStoreFeatureFactory<[InputFeature, F1, F2, F3, F4, F5], F6>
+    f1: SignalStoreFeatureFactory<InputFeature, F1>,
+    f2: SignalStoreFeatureFactory<InputFeature & F1, F2>,
+    f3: SignalStoreFeatureFactory<InputFeature & F1 & F2, F3>,
+    f4: SignalStoreFeatureFactory<InputFeature & F1 & F2 & F3, F4>,
+    f5: SignalStoreFeatureFactory<InputFeature & F1 & F2 & F3 & F4, F5>,
+    f6: SignalStoreFeatureFactory<InputFeature & F1 & F2 & F3 & F4 & F5, F6>
   ): (
     featureInput: SignalStoreFeatureInput<InputFeature>
   ) => F1 & F2 & F3 & F4 & F5 & F6;
