@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { JsonPipe } from '@angular/common';
+import { interval } from 'rxjs';
 import { signalState } from '@ngrx/signals';
+import { immerUpdater } from './shared/immer-updater';
 
 @Component({
   selector: 'app-root',
@@ -29,13 +31,12 @@ export class AppComponent {
   });
 
   constructor() {
-    setInterval(() => {
-      this.state.$update({
-        user: {
-          ...this.state.user(),
-          lastName: `Stanimirovic${Math.random()}`,
-        },
-      });
-    }, 1000);
+    interval(1000).subscribe((i) => {
+      this.state.$update(
+        immerUpdater((state) => {
+          state.user.lastName = `Stanimirovic${i + 1}`;
+        })
+      );
+    });
   }
 }
