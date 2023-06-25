@@ -3,7 +3,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 import { JsonPipe } from '@angular/common';
 import { interval } from 'rxjs';
 import { signalState } from '@ngrx/signals';
-import { immerUpdater } from './shared/immer-updater';
+import { immerUpdater } from './shared/immer-update.feature';
 
 @Component({
   selector: 'app-root',
@@ -11,8 +11,8 @@ import { immerUpdater } from './shared/immer-updater';
   imports: [RouterOutlet, RouterLink, JsonPipe],
   template: `
     <div>
-      <a routerLink="/counter">Counter</a> |
-      <a routerLink="/users">Users</a>
+      <a routerLink="/counter">Counter</a> | <a routerLink="/users">Users</a> |
+      <a routerLink="/todos">Todos</a>
     </div>
     <router-outlet></router-outlet>
 
