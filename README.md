@@ -10,12 +10,14 @@ Key principles:
 
 - Simple and intuitive
 - Declarative
-- Composable / Modular
+- Composable / modular
 - Scalable
-- Performant and Tree-shakeable
+- Performant and tree-shakeable
 - Strongly typed
 
-### [Playground](https://github.com/markostanimirovic/ngrx-signal-store-playground)
+### [GitHub Repo](https://github.com/markostanimirovic/ngrx-signal-store-playground)
+
+### [StackBlitz Playground](https://stackblitz.com/github/markostanimirovic/ngrx-signal-store-playground?preset=node)
 
 ### Contents
 
@@ -85,7 +87,7 @@ state.$update(
 );
 ```
 
-This provides the ability to define reusable updater functions that can be used in any signal state that has a specific state slice.
+This provides the ability to define reusable updater functions that can be used for any `signalState` instance that has a specific state slice.
 
 ```ts
 import { signalState, SignalStateUpdater } from '@ngrx/signals';
@@ -108,11 +110,10 @@ const state1 = signalState({
 const state2 = signalState({
   user: { firstName: 'Peter', lastName: 'Smith' },
   numbers: [1, 2, 3],
-  foo: 'bar'
 });
 
 state1.$update(setFirstName('Marko'), addNumber(40), { label: 'signals' });
-state2.$update(setFirstName('Alex'), addNumber(4), { foo: 'baz' });
+state2.$update(setFirstName('Alex'), addNumber(4));
 ```
 
 Unlike the default behavior of Angular signals, all signals created by the `signalState` function use equality check for reference types, not only for primitives. Therefore, the `$update` method only supports immutable updates. To perform immutable updates in a mutable way, use the `immer` library:
@@ -129,7 +130,7 @@ export function immerUpdater<State extends Record<string, unknown>>(
 }
 ```
 
-The `immerUpdater` function can be further used in the following way:
+The `immerUpdater` function can be used in the following way:
 
 ```ts
 import { immerUpdater } from './immer-updater';
@@ -146,7 +147,7 @@ state.$update(
 
 ### `selectSignal`
 
-The `selectSignal` function is used to create derived (computed) signals. Unlike `computed` function from the `@angular/core` package, the `selectSignal` function applies an equality check for reference types by default. It has the same signature as `computed`.
+The `selectSignal` function is used to create computed (derived) signals. Unlike `computed` function from the `@angular/core` package, the `selectSignal` function applies an equality check for reference types by default. It has the same signature as `computed`.
 
 ```ts
 import { selectSignal, signalState } from '@ngrx/signals';
@@ -159,7 +160,7 @@ const usersState = signalState<UsersState>({
 });
 
 const filteredUsers = selectSignal(() =>
-  usersState.users().filter(({ name }) => name.includes(query()))
+  usersState.users().filter(({ name }) => name.includes(usersState.query()))
 );
 ```
 
@@ -225,7 +226,25 @@ export class UsersComponent {
 }
 ```
 
-The `withSignals` feature accepts the factory function as an input argument. Its factory accepts a dictionary of previously defined state and computed signals as an input argument and returns a dictionary of computed signals.
+The `withState` feature also has a signature that accepts the initial state factory as an input argument.
+
+```ts
+import { signalStore, withState } from '@ngrx/signals';
+
+type UsersState = { users: User[]; query: string };
+
+const USERS_INITIAL_STATE = new InjectionToken<UsersState>('Users Initial State', {
+   factory() {
+     return { users: [], query: '' };
+   }, 
+});
+
+const UsersStore = signalStore(
+  withState(() => inject(USERS_INITIAL_STATE))
+);
+```
+
+The `withSignals` feature accepts the computed signals factory as an input argument. Its factory accepts a dictionary of previously defined state and computed signals as an input argument.
 
 ```ts
 import { selectSignal, signalStore, withState, withSignals } from '@ngrx/signals';
@@ -257,10 +276,10 @@ export class UsersComponent {
 
 The `withMethods` feature provides the ability to add methods to the signal store. Its factory accepts a dictionary of previously defined state signals, computed signals, methods, and `$update` method as an input argument and returns a dictionary of methods.
 
-The last base SignalStore feature is `withHooks`. It provides the ability to add custom logic on SignalStore init and/or destroy.
+The last base feature of SignalStore is `withHooks`. It provides the ability to add custom logic on SignalStore init and/or destroy.
 
 ```ts
-import { selectSignal, signalStore, withState, withSignals, withMethods, withHooks } from '@ngrx/signals';
+import { signalStore, withState, withMethods, withHooks } from '@ngrx/signals';
 
 type UsersState = { users: User[]; loading: boolean };
 
@@ -271,19 +290,18 @@ const UsersStore = signalStore(
     // services/tokens can be injected here
     const usersService = inject(UsersService);
 
-    function addUser(user: User): void {
-      $update((state) => ({
-        users: [...state.users, user],
-      }));
-    }
-
-    async function loadUsers(): Promise<void> {
-      $update({ loading: true });
-      const users = await usersService.getAll();
-      $update({ users, loading: false });
-    }
-
-    return { addUser, loadUsers };
+    return {
+      addUser(user: User): void {
+        $update((state) => ({
+          users: [...state.users, user],
+        }));
+      },
+      async loadUsers(): Promise<void> {
+        $update({ loading: true });
+        const users = await usersService.getAll();
+        $update({ users, loading: false });
+      },  
+    };
   }),
   withHooks({
     onInit({ loadUsers }) {
@@ -311,7 +329,7 @@ export class UsersComponent {
 
 #### DI Config
 
-In the previous examples, we saw the default behavior - `signalStore` returns a class/token that can be further provided and injected where needed. However, we can also provide a SignalStore at the root level by using the `{ providedIn: 'root' }` config:
+In the previous examples, we saw the default behavior - `signalStore` returns a class/token that can be further provided where needed. However, we can also provide a SignalStore at the root level by using the `{ providedIn: 'root' }` config:
 
 ```ts
 import { signalStore, withState } from '@ngrx/signals';
@@ -332,7 +350,7 @@ export class UsersComponent {
 
 #### Defining Stores as Classes
 
-Besides the functional approach, we can also define a custom store as class in the following way:
+Besides the functional approach, we can also define a store as class in the following way:
 
 ```ts
 import { selectSignal, signalStore, withState } from '@ngrx/signals';
@@ -347,6 +365,7 @@ export class CounterStore extends signalStore(withState(initialState)) {
   readonly doubleCount = selectSignal(() => this.count() * 2);
   
   increment(): void {
+    // this.$update method is available from the base class
     this.$update({ count: this.count() + 1 });
   }
   
@@ -404,7 +423,7 @@ type UsersState = { users: User[] };
 
 const UsersStore = signalStore(
   { providedIn: 'root' },
-  withState<UsersState>({users: []}),
+  withState<UsersState>({ users: [] }),
   withCallState(),
   withMethods(({ $update }, usersService = inject(UsersService)) => ({
     async loadUsers() {
@@ -433,26 +452,28 @@ export class UsersComponent implements OnInit {
 }
 ```
 
-The `signalStoreFeatureFactory` function also provides the ability to specify which state slices, computed signals, and/or methods are required in a store that can use the feature.
+The `signalStoreFeatureFactory` function also provides the ability to specify which state slices, computed signals, and/or methods are required in a store that uses the feature.
 
 ```ts
 // selected-entity.feature.ts
 import { selectSignal, signalStoreFeatureFactory, withState, withSignals } from '@ngrx/signals';
 
-export function withSelectedEntity<T extends { id: number }>() {
+type SelectedEntityState = { selectedEntityId: string | number | null };
+
+export function withSelectedEntity<T extends { id: string | number }>() {
   const filteredEntitiesFeature = signalStoreFeatureFactory<{
-    // a store that uses 'withSelectedEntity' feature must have the 'entities' state slice
-    state: { entities: Dictionary<T> }
+    // a store that uses 'withSelectedEntity' feature must have the 'entityMap' state slice
+    state: { entityMap: Dictionary<T> }
   }>();
   
   return filteredEntitiesFeature(
-    withState<{ selectedEntityId: number | null }>({ selectedEntityId: null }),
-    withSignals(({ selectedEntityId, entities }) => ({
+    withState<SelectedEntityState>({ selectedEntityId: null }),
+    withSignals(({ selectedEntityId, entityMap }) => ({
       selectedEntity: selectSignal(
         selectedEntityId,
-        entities,
-        (selectedEntityId, entities) => selectedEntityId
-          ? entities[selectedEntityId]
+        entityMap,
+        (selectedEntityId, entityMap) => selectedEntityId
+          ? entityMap[selectedEntityId]
           : null
       )
     }))
@@ -460,21 +481,21 @@ export function withSelectedEntity<T extends { id: number }>() {
 }
 ```
 
-If we try to use the `withSelectedEntity` feature in the store that doesn't contain `entities` state slice, the compilation error will be thrown.
+If we try to use the `withSelectedEntity` feature in the store that doesn't contain `entityMap` state slice, the compilation error will be thrown.
 
 ```ts
 import { signalStore, withState } from '@ngrx/signals';
 import { withSelectedEntity } from './selected-entity.feature';
 
-const UsersStore1 = signalStore(
+const UsersStoreWithoutEntityMap = signalStore(
   withState<{ query: string }>({ query: '' }),
   withSelectedEntity() // ❌ compilation error
 );
 
-const UsersStore2 = signalStore(
-  withState<{ query: string; entities: Dictionary<User> }>({
+const UsersStoreWithEntityMap = signalStore(
+  withState<{ query: string; entityMap: Dictionary<User> }>({
     query: '',
-    entities: {},
+    entityMap: {},
   }),
   withSelectedEntity(), // ✅
 );
@@ -546,13 +567,10 @@ The `rxEffect` function can be used in the following way:
 import { rxEffect } from '@ngrx/rxjs-utils';
 import { signal } from '@angular/core';
 
-@Component({
-  /* ... */
-})
+@Component({ /* ... */ })
 export class UsersComponent implements OnInit {
   private readonly usersService = inject(UsersService);
 
-  readonly state = signalState(initialState);
   readonly users = signal<User[]>([]);
   readonly loading = signal(false);
   readonly query = signal('');
@@ -654,7 +672,7 @@ export class UsersComponent implements OnInit {
   }
 
   onDeleteOne(): void {
-    this.usersStore.update(deleteOne(1));
+    this.usersStore.$update(deleteOne(1));
   }
 }
 ```
@@ -680,6 +698,6 @@ const booksStore = inject(BooksStore);
 // - (computed) booksStore.authorEntities: Signal<Author[]>;
 
 // updating multiple collections:
-booksStore.update(addOne({ id: 10, title: 'Book 1' }, { collection: 'book' }));
-booksStore.update(deleteOne(100, { collection: 'author' }));
+booksStore.$update(addOne({ id: 10, title: 'Book 1' }, { collection: 'book' }));
+booksStore.$update(deleteOne(100, { collection: 'author' }));
 ```
