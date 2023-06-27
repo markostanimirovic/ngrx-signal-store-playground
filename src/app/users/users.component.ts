@@ -14,7 +14,7 @@ import { UsersStore } from './users.store';
       [ngModel]="usersStore.filter.query()"
       (ngModelChange)="usersStore.updateFilter({ query: $event })"
     />
-    <span *ngIf="usersStore.isLoading()">Loading ...</span>
+    <span *ngIf="usersStore.loading()">Loading ...</span>
 
     <ul>
       <li *ngFor="let user of usersStore.entities()">{{ user.name }}</li>

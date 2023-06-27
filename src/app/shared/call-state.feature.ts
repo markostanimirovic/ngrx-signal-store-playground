@@ -1,34 +1,35 @@
 import {
   selectSignal,
-  SignalStateUpdater,
   signalStoreFeatureFactory,
   withSignals,
   withState,
 } from '@ngrx/signals';
 
-export type CallState = 'init' | 'loading' | 'loaded' | 'error';
+export type CallState = 'init' | 'loading' | 'loaded' | { error: string };
 
 export function withCallState() {
   const callStateFeature = signalStoreFeatureFactory();
 
   return callStateFeature(
-    withState({ callState: 'init' as CallState }),
+    withState<{ callState: CallState }>({ callState: 'init' }),
     withSignals(({ callState }) => ({
-      isLoading: selectSignal(() => callState() === 'loading'),
-      isLoaded: selectSignal(() => callState() === 'loaded'),
-      isError: selectSignal(() => callState() === 'error'),
+      loading: selectSignal(() => callState() === 'loading'),
+      loaded: selectSignal(() => callState() === 'loaded'),
+      error: selectSignal(callState, (callState) =>
+        typeof callState === 'object' ? callState.error : null
+      ),
     }))
   );
 }
 
-export function setLoading(): SignalStateUpdater<{ callState: CallState }> {
+export function setLoading(): { callState: CallState } {
   return { callState: 'loading' };
 }
 
-export function setLoaded(): SignalStateUpdater<{ callState: CallState }> {
+export function setLoaded(): { callState: CallState } {
   return { callState: 'loaded' };
 }
 
-export function setError(): SignalStateUpdater<{ callState: CallState }> {
-  return { callState: 'error' };
+export function setError(error: string): { callState: CallState } {
+  return { callState: { error } };
 }

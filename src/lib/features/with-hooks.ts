@@ -16,12 +16,7 @@ export function withHooks<
       Signals &
       Methods
   ) => void;
-  onDestroy?: (
-    input: SignalStateUpdate<State> &
-      SignalStoreSlices<State> &
-      Signals &
-      Methods
-  ) => void;
+  onDestroy?: (input: SignalStoreSlices<State> & Signals & Methods) => void;
 }): (
   featureInput: SignalStoreFeatureInput<{
     state: State;

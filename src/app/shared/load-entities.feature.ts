@@ -10,7 +10,6 @@ import { inject, Type } from '@angular/core';
 
 export interface EntityService<T> {
   getAll(): Promise<T[]>;
-
   getByFilter(filter: Filter): Observable<T[]>;
 }
 
