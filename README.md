@@ -72,7 +72,7 @@ state.$update({ foo: 'baz', numbers: [10, 20, 30] });
 // passing an updater function
 state.$update((state) => ({
   user: { ...state.user, firstName: 'Peter' },
-  flag: false,
+  foo: 'bar',
 }));
 
 // passing a sequence of partial state objects and/or updater functions
@@ -199,7 +199,7 @@ const UsersStore = signalStore(
 );
 ```
 
-The `signalStore` function returns a class/token that can be further provided and injected where needed. Similar to `signalState`, `signalStore` also provides [`$update` method](#update-method) for updating the state.
+The `signalStore` function returns a class/token that can be further provided and injected where needed. Similar to `signalState`, `signalStore` also provides the [`$update` method](#update-method) for updating the state.
 
 ```ts
 @Component({
@@ -225,7 +225,7 @@ export class UsersComponent {
 }
 ```
 
-The `withSignals` feature accepts the factory function as an input argument. Its factory accepts a dictionary previously defined state and computed signals as an input argument and returns a dictionary of computed signals.
+The `withSignals` feature accepts the factory function as an input argument. Its factory accepts a dictionary of previously defined state and computed signals as an input argument and returns a dictionary of computed signals.
 
 ```ts
 import { selectSignal, signalStore, withState, withSignals } from '@ngrx/signals';
@@ -234,10 +234,9 @@ type UsersState = { users: User[]; query: string };
 
 const UsersStore = signalStore(
   withState<UsersState>({ users: [], query: '' }),
-  // we can access previously defined state slices via factory input
+  // we can access previously created state signals via factory input
   withSignals(({ users, query }) => ({
     filteredUsers: selectSignal(() =>
-      // 'users' and 'query' slices are signals
       users().filter(({ name }) => name.includes(query()))
     ),
   }))
@@ -258,7 +257,7 @@ export class UsersComponent {
 
 The `withMethods` feature provides the ability to add methods to the signal store. Its factory accepts a dictionary of previously defined state signals, computed signals, methods, and `$update` method as an input argument and returns a dictionary of methods.
 
-The last base SignalStore feature is `withHooks`. It provides the ability to add custom logic on SignalStore init and/or destroy. `onInit` and `onDestroy` functions accept a dictionary of previously defined state signals, computed signals, and methods as an input argument.
+The last base SignalStore feature is `withHooks`. It provides the ability to add custom logic on SignalStore init and/or destroy.
 
 ```ts
 import { selectSignal, signalStore, withState, withSignals, withMethods, withHooks } from '@ngrx/signals';
@@ -539,7 +538,7 @@ export class TodosStore extends signalStore(
 
 ### `rxEffect`
 
-The `rxEffect` function is inspired by the `ComponentStore.effect` method. It provides the ability to manage asynchronous side effects by using RxJS. It returns a function that accepts a static value, signal, or observable as an input argument.
+The `rxEffect` function is inspired by the `ComponentStore.effect` method. It provides the ability to manage side effects by using RxJS operators. It returns a function that accepts a static value, signal, or observable as an input argument.
 
 The `rxEffect` function can be used in the following way:
 
@@ -582,7 +581,7 @@ export class UsersComponent implements OnInit {
 }
 ```
 
-The `rxEffect` function can be also used to define SignalStore methods:
+It can be also used to define SignalStore methods:
 
 ```ts
 import { signalStore, withState, withMethods, withHooks } from '@ngrx/signals';
