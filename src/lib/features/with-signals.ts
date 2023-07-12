@@ -1,8 +1,8 @@
 import { Signal } from '@angular/core';
 import {
   SignalStoreSlices,
-  SignalStoreFeatureInput,
-} from '../signal-store-feature';
+  InternalSignalStore,
+} from '../signal-store-feature-factory';
 
 export function withSignals<
   State extends Record<string, unknown>,
@@ -11,15 +11,15 @@ export function withSignals<
 >(
   signalsFactory: (input: SignalStoreSlices<State> & PreviousSignals) => Signals
 ): (
-  featureInput: SignalStoreFeatureInput<{
+  store: InternalSignalStore<{
     state: State;
     signals: PreviousSignals;
   }>
 ) => { signals: Signals } {
-  return (featureInput) => ({
+  return (store) => ({
     signals: signalsFactory({
-      ...featureInput.slices,
-      ...featureInput.signals,
+      ...store.slices,
+      ...store.signals,
     }),
   });
 }

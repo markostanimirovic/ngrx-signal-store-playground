@@ -1,9 +1,9 @@
 import { Signal } from '@angular/core';
 import {
+  InternalSignalStore,
   SignalStoreSlices,
-  SignalStoreFeatureInput,
-} from '../signal-store-feature';
-import { SignalStateUpdate } from '../signal-state-update';
+} from '../signal-store-feature-factory';
+import { SignalStoreInternals } from '../signal-store-internals';
 
 export function withMethods<
   State extends Record<string, unknown>,
@@ -12,24 +12,24 @@ export function withMethods<
   Methods extends Record<string, (...args: any[]) => any>
 >(
   methodsFactory: (
-    input: SignalStateUpdate<State> &
+    input: SignalStoreInternals<State> &
       SignalStoreSlices<State> &
       Signals &
       PreviousMethods
   ) => Methods
 ): (
-  featureInput: SignalStoreFeatureInput<{
+  store: InternalSignalStore<{
     state: State;
     signals: Signals;
     methods: PreviousMethods;
   }>
 ) => { methods: Methods } {
-  return (featureInput) => ({
+  return (store) => ({
     methods: methodsFactory({
-      $update: featureInput.$update,
-      ...featureInput.slices,
-      ...featureInput.signals,
-      ...featureInput.methods,
+      ...store.internals,
+      ...store.slices,
+      ...store.signals,
+      ...store.methods,
     }),
   });
 }

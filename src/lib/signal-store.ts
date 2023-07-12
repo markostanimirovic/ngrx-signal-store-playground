@@ -9,12 +9,10 @@ import {
 import {
   SignalStoreFeature,
   SignalStoreFeatureFactory,
-  SignalStoreFeatureInput,
-} from './signal-store-feature';
-import {
-  SignalStateUpdate,
-  signalStateUpdateFactory,
-} from './signal-state-update';
+  InternalSignalStore,
+} from './signal-store-feature-factory';
+import { SignalStoreInternals } from './signal-store-internals';
+import { signalStateUpdateFactory } from './signal-state-update';
 import { toDeepSignal } from './deep-signal';
 import { selectSignal } from './select-signal';
 import { defaultEqualityFn } from './helpers';
@@ -25,14 +23,14 @@ type SignalStoreConfig = { providedIn: 'root' };
 type SignalStore<
   Features extends SignalStoreFeature[],
   State
-> = SignalStateUpdate<State> &
+> = SignalStoreInternals<State> &
   ToIntersection<{
     [Key in keyof Features]: SignalStoreFeatureResult<Features[Key]>;
   }>;
 
 type SignalStoreFeatureResult<
   Feature extends SignalStoreFeature,
-  FeatureInput extends SignalStoreFeatureInput<Feature> = SignalStoreFeatureInput<Feature>
+  FeatureInput extends InternalSignalStore<Feature> = InternalSignalStore<Feature>
 > = FeatureInput['slices'] & FeatureInput['signals'] & FeatureInput['methods'];
 
 export function signalStore<F1 extends SignalStoreFeature>(
@@ -428,13 +426,15 @@ function signalStoreFactory(
     {},
     { equal: defaultEqualityFn }
   );
-  const $update = signalStateUpdateFactory(stateSignal);
-  const featureInput: SignalStoreFeatureInput<{
+  const store: InternalSignalStore<{
     state: Record<string, unknown>;
     signals: Record<string, Signal<any>>;
     methods: Record<string, (...args: any[]) => any>;
   }> = {
-    $update,
+    internals: {
+      $state: stateSignal.asReadonly(),
+      $update: signalStateUpdateFactory(stateSignal),
+    },
     slices: {},
     signals: {},
     methods: {},
@@ -443,7 +443,7 @@ function signalStoreFactory(
   const onDestroys: Array<() => void> = [];
 
   for (const featureFactory of featureFactories.flat()) {
-    const feature = featureFactory(featureInput);
+    const feature = featureFactory(store);
 
     if (feature.state && Object.keys(feature.state).length > 0) {
       stateSignal.update((state) => ({ ...state, ...feature.state }));
@@ -451,15 +451,15 @@ function signalStoreFactory(
 
     for (const key in feature.state) {
       const slice = selectSignal(() => stateSignal()[key]);
-      featureInput.slices[key] = toDeepSignal(slice);
+      store.slices[key] = toDeepSignal(slice);
     }
 
     for (const key in feature.signals) {
-      featureInput.signals[key] = feature.signals[key];
+      store.signals[key] = feature.signals[key];
     }
 
     for (const key in feature.methods) {
-      featureInput.methods[key] = feature.methods[key];
+      store.methods[key] = feature.methods[key];
     }
 
     if (feature.hooks) {
@@ -477,9 +477,9 @@ function signalStoreFactory(
   }
 
   return {
-    $update,
-    ...featureInput.slices,
-    ...featureInput.signals,
-    ...featureInput.methods,
+    ...store.internals,
+    ...store.slices,
+    ...store.signals,
+    ...store.methods,
   };
 }

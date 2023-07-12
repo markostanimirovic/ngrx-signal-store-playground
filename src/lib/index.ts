@@ -2,7 +2,7 @@ export { selectSignal } from './select-signal';
 export { signalState } from './signal-state';
 export { SignalStateUpdater } from './signal-state-update';
 export { signalStore } from './signal-store';
-export { signalStoreFeatureFactory } from './signal-store-feature';
+export { signalStoreFeatureFactory } from './signal-store-feature-factory';
 
 // rxjs utils
 export { injectDestroy } from './inject-destroy';

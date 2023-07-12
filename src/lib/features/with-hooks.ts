@@ -1,9 +1,9 @@
 import { Signal } from '@angular/core';
 import {
-  SignalStoreFeatureInput,
+  InternalSignalStore,
   SignalStoreSlices,
-} from '../signal-store-feature';
-import { SignalStateUpdate } from '../signal-state-update';
+} from '../signal-store-feature-factory';
+import { SignalStoreInternals } from '../signal-store-internals';
 
 export function withHooks<
   State extends Record<string, unknown>,
@@ -11,14 +11,14 @@ export function withHooks<
   Methods extends Record<string, (...args: any[]) => any>
 >(hooks: {
   onInit?: (
-    input: SignalStateUpdate<State> &
+    input: SignalStoreInternals<State> &
       SignalStoreSlices<State> &
       Signals &
       Methods
   ) => void;
   onDestroy?: (input: SignalStoreSlices<State> & Signals & Methods) => void;
 }): (
-  featureInput: SignalStoreFeatureInput<{
+  featureInput: InternalSignalStore<{
     state: State;
     signals: Signals;
     methods: Methods;
@@ -31,7 +31,7 @@ export function withHooks<
       onInit: hooks.onInit
         ? () => {
             hooks.onInit?.({
-              $update: featureInput.$update,
+              ...featureInput.internals,
               ...featureInput.slices,
               ...featureInput.signals,
               ...featureInput.methods,
@@ -41,7 +41,7 @@ export function withHooks<
       onDestroy: hooks.onDestroy
         ? () => {
             hooks.onDestroy?.({
-              $update: featureInput.$update,
+              ...featureInput.internals,
               ...featureInput.slices,
               ...featureInput.signals,
               ...featureInput.methods,
