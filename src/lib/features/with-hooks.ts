@@ -1,53 +1,59 @@
 import { Signal } from '@angular/core';
-import {
-  InternalSignalStore,
-  SignalStoreSlices,
-} from '../signal-store-feature-factory';
 import { SignalStoreInternals } from '../signal-store-internals';
+import {
+  EmptyFeatureResult,
+  getEmptyFeatureResult,
+  SignalStoreFeature,
+  SignalStoreSlices,
+} from '../signal-store-feature';
+
+type HooksFactory<
+  InputState extends Record<string, unknown>,
+  InputSignals extends Record<string, Signal<any>>,
+  InputMethods extends Record<string, (...args: any[]) => any>
+> = (
+  props: SignalStoreInternals<InputState> &
+    SignalStoreSlices<InputState> &
+    InputSignals &
+    InputMethods
+) => void;
 
 export function withHooks<
-  State extends Record<string, unknown>,
-  Signals extends Record<string, Signal<any>>,
-  Methods extends Record<string, (...args: any[]) => any>
+  InputState extends Record<string, unknown>,
+  InputSignals extends Record<string, Signal<any>>,
+  InputMethods extends Record<string, (...args: any[]) => any>
 >(hooks: {
-  onInit?: (
-    input: SignalStoreInternals<State> &
-      SignalStoreSlices<State> &
-      Signals &
-      Methods
-  ) => void;
-  onDestroy?: (input: SignalStoreSlices<State> & Signals & Methods) => void;
-}): (
-  featureInput: InternalSignalStore<{
-    state: State;
-    signals: Signals;
-    methods: Methods;
-  }>
-) => {
-  hooks: { onInit?: () => void; onDestroy?: () => void };
-} {
-  return (featureInput) => ({
-    hooks: {
-      onInit: hooks.onInit
+  onInit?: HooksFactory<InputState, InputSignals, InputMethods>;
+  onDestroy?: HooksFactory<InputState, InputSignals, InputMethods>;
+}): SignalStoreFeature<
+  {
+    state: InputState;
+    signals: InputSignals;
+    methods: InputMethods;
+  },
+  EmptyFeatureResult & {
+    hooks: { onInit?: () => void; onDestroy?: () => void };
+  }
+> {
+  return (store) => {
+    const createHook = (name: keyof typeof hooks) =>
+      hooks[name]
         ? () => {
-            hooks.onInit?.({
-              ...featureInput.internals,
-              ...featureInput.slices,
-              ...featureInput.signals,
-              ...featureInput.methods,
+            hooks[name]?.({
+              ...store.internals,
+              ...store.slices,
+              ...store.signals,
+              ...store.methods,
             });
           }
-        : undefined,
-      onDestroy: hooks.onDestroy
-        ? () => {
-            hooks.onDestroy?.({
-              ...featureInput.internals,
-              ...featureInput.slices,
-              ...featureInput.signals,
-              ...featureInput.methods,
-            });
-          }
-        : undefined,
-    },
-  });
+        : undefined;
+
+    return {
+      ...getEmptyFeatureResult(),
+      hooks: {
+        onInit: createHook('onInit'),
+        onDestroy: createHook('onDestroy'),
+      },
+    };
+  };
 }

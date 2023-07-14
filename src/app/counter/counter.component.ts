@@ -5,7 +5,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { interval, tap } from 'rxjs';
-import { rxEffect } from '@ngrx/signals';
+import { rxMethod } from '@ngrx/signals';
 import { CounterStore } from './counter.store';
 
 @Component({
@@ -23,8 +23,8 @@ import { CounterStore } from './counter.store';
 export class CounterComponent implements OnInit {
   readonly counterStore = inject(CounterStore);
 
-  // rxEffect can be also used independently
-  private readonly logDoubleCount = rxEffect(
+  // rxMethod can be also used independently
+  private readonly logDoubleCount = rxMethod(
     tap(() => console.log('double count:', this.counterStore.doubleCount()))
   );
 

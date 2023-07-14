@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { signalStore, withMethods, withState } from '@ngrx/signals';
-import { withLocalStorageSync } from '../shared/local-storage-sync.feature';
+import { withStorageSync } from '../shared/storage-sync.feature';
 import { withImmerUpdate } from '../shared/immer-update.feature';
 
 @Injectable({ providedIn: 'root' })
 export class TodosStore extends signalStore(
   withState<{ todos: string[] }>({ todos: [] }),
-  withLocalStorageSync('todos'),
+  withStorageSync('todosState'),
   withImmerUpdate()
 ) {
   addTodo(todo: string): void {
@@ -26,16 +26,16 @@ export class TodosStore extends signalStore(
 export const TodosStore2 = signalStore(
   { providedIn: 'root' },
   withState<{ todos: string[] }>({ todos: [] }),
-  withLocalStorageSync('todos'),
+  withStorageSync('todosState'),
   withImmerUpdate(),
-  withMethods(({ $update }) => ({
+  withMethods((store) => ({
     addTodo(todo: string): void {
-      $update((state) => {
+      store.$update((state) => {
         state.todos.push(todo);
       });
     },
     removeTodo(index: number): void {
-      $update((state) => {
+      store.$update((state) => {
         state.todos.splice(index, 1);
       });
     },

@@ -10,7 +10,8 @@ Key principles:
 
 - Simple and intuitive
 - Declarative
-- Composable / modular
+- Flexible
+- Modular
 - Scalable
 - Performant and tree-shakeable
 - Strongly typed
@@ -28,7 +29,7 @@ Key principles:
   - [DI Config](#di-config)
   - [Defining Stores as Classes](#defining-stores-as-classes)
   - [Custom Store Features](#custom-store-features)
-- [`rxEffect`](#rxeffect)
+- [`rxMethod`](#rxmethod)
 - [Entity Management](#entity-management)
 
 ---
@@ -377,18 +378,16 @@ export class CounterStore extends signalStore(withState(initialState)) {
 
 #### Custom Store Features
 
-The `@ngrx/signals` package provides the `signalStoreFeatureFactory` function that can be used to create custom SignalStore features.
+The `@ngrx/signals` package provides the `signalStoreFeature` function that can be used to create custom SignalStore features.
 
 ```ts
 // call-state.feature.ts
-import { selectSignal, signalStoreFeatureFactory, withState, withSignals } from '@ngrx/signals';
+import { selectSignal, signalStoreFeature, withState, withSignals } from '@ngrx/signals';
 
 export type CallState = 'init' | 'loading' | 'loaded' | { error: string };
 
 export function withCallState() {
-  const callStateFeature = signalStoreFeatureFactory();
-  
-  return callStateFeature(
+  return signalStoreFeature(
     withState<{ callState: CallState }>({ callState: 'init' }),
     withSignals(({ callState }) => ({
       loading: selectSignal(() => callState() === 'loading'),
@@ -425,13 +424,13 @@ const UsersStore = signalStore(
   { providedIn: 'root' },
   withState<UsersState>({ users: [] }),
   withCallState(),
-  withMethods(({ $update }, usersService = inject(UsersService)) => ({
+  withMethods((store, usersService = inject(UsersService)) => ({
     async loadUsers() {
       // updating the state:
-      $update({ callState: 'loading' });
+      store.$update({ callState: 'loading' });
       const users = await usersService.getAll();
       // or we can use reusable updater:
-      $update({ users }, setLoaded());
+      store.$update({ users }, setLoaded());
     }
   }))
 );
@@ -452,21 +451,18 @@ export class UsersComponent implements OnInit {
 }
 ```
 
-The `signalStoreFeatureFactory` function also provides the ability to specify which state slices, computed signals, and/or methods are required in a store that uses the feature.
+The `signalStoreFeature` function also provides the ability to specify which state slices, computed signals, and/or methods are required in a store that uses the feature. This can be done using the `type` helper function.
 
 ```ts
 // selected-entity.feature.ts
-import { selectSignal, signalStoreFeatureFactory, withState, withSignals } from '@ngrx/signals';
+import { selectSignal, signalStoreFeature, type, withState, withSignals } from '@ngrx/signals';
 
 type SelectedEntityState = { selectedEntityId: string | number | null };
 
 export function withSelectedEntity<T extends { id: string | number }>() {
-  const filteredEntitiesFeature = signalStoreFeatureFactory<{
+  return signalStoreFeature(
     // a store that uses 'withSelectedEntity' feature must have the 'entityMap' state slice
-    state: { entityMap: Dictionary<T> }
-  }>();
-  
-  return filteredEntitiesFeature(
+    { state: type<{ entityMap: Dictionary<T> }>() },
     withState<SelectedEntityState>({ selectedEntityId: null }),
     withSignals(({ selectedEntityId, entityMap }) => ({
       selectedEntity: selectSignal(
@@ -484,7 +480,7 @@ export function withSelectedEntity<T extends { id: string | number }>() {
 If we try to use the `withSelectedEntity` feature in the store that doesn't contain `entityMap` state slice, the compilation error will be thrown.
 
 ```ts
-import { signalStore, withState } from '@ngrx/signals';
+import { signalStore, type, withState } from '@ngrx/signals';
 import { withSelectedEntity } from './selected-entity.feature';
 
 const UsersStoreWithoutEntityMap = signalStore(
@@ -504,17 +500,18 @@ const UsersStoreWithEntityMap = signalStore(
 Besides state, we can also add constraints for computed signals and/or methods in the following way:
 
 ```ts
+import { signalStoreFeature, type } from '@ngrx/signals';
+
 export function withMyFeature() {
-  const myFeature = signalStoreFeatureFactory<{
-    // a store that uses 'withMyFeature' must have the 'foo' state slice,
-    state: { foo: string },
-    // 'bar' computed signal,
-    signals: { bar: Signal<number> },
-    // and 'loadBaz' method
-    methods: { loadBaz: () => Promise<void> }
-  }>();
-  
-  return myFeature(
+  return signalStoreFeature(
+    {
+      // a store that uses 'withMyFeature' must have the 'foo' state slice,
+      state: type<{ foo: string }>(),
+      // 'bar' computed signal,
+      signals: type<{ bar: Signal<number> }>(),
+      // and 'loadBaz' method
+      methods: type<{ loadBaz: () => Promise<void> }>(),
+    },
     /* ... */
   );
 }
@@ -523,10 +520,10 @@ export function withMyFeature() {
 More examples of custom SignalStore features:
 
 - [`withImmerUpdate`](https://github.com/markostanimirovic/ngrx-signal-store-playground/blob/main/src/app/shared/immer-update.feature.ts)
-- [`withLocalStorageSync`](https://github.com/markostanimirovic/ngrx-signal-store-playground/blob/main/src/app/shared/local-storage-sync.feature.ts)
+- [`withStorageSync`](https://github.com/markostanimirovic/ngrx-signal-store-playground/blob/main/src/app/shared/storage-sync.feature.ts)
 - [`withLoadEntities`](https://github.com/markostanimirovic/ngrx-signal-store-playground/blob/main/src/app/shared/load-entities.feature.ts)
 
-`withImmerUpdate` and `withLocalStorageSync` features can be developed as community plugins in the future.
+`withImmerUpdate` and `withStorageSync` features can be developed as community plugins in the future.
 
 ```ts
 import { signalStore, withState } from '@ngrx/signals';
@@ -537,7 +534,7 @@ import { withImmerUpdate } from '../shared/immer-update.feature';
 export class TodosStore extends signalStore(
   withState<{ todos: string[] }>({ todos: [] }),
   // synchronize todos state with localStorage item with key 'todos'
-  withLocalStorageSync('todos'),
+  withStorageSync('todos'),
   // override $update method to use `immerUpdater` under the hood by default
   withImmerUpdate()
 ) {
@@ -557,14 +554,14 @@ export class TodosStore extends signalStore(
 
 ---
 
-### `rxEffect`
+### `rxMethod`
 
-The `rxEffect` function is inspired by the `ComponentStore.effect` method. It provides the ability to manage side effects by using RxJS operators. It returns a function that accepts a static value, signal, or observable as an input argument.
+The `rxMethod` function is inspired by the `ComponentStore.effect` method. It provides the ability to create reactive methods by using RxJS operators. It returns a function that accepts a static value, signal, or observable as an input argument.
 
-The `rxEffect` function can be used in the following way:
+The `rxMethod` function can be used in the following way:
 
 ```ts
-import { rxEffect } from '@ngrx/rxjs-utils';
+import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { signal } from '@angular/core';
 
 @Component({ /* ... */ })
@@ -575,7 +572,7 @@ export class UsersComponent implements OnInit {
   readonly loading = signal(false);
   readonly query = signal('');
 
-  readonly loadUsersByQuery = rxEffect<string>(
+  readonly loadUsersByQuery = rxMethod<string>(
     pipe(
       tap(() => this.loading.set(true)),
       switchMap((query) => this.usersService.getByQuery(query)),
@@ -587,12 +584,12 @@ export class UsersComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    // The effect will be executed every time when query signal changes.
+    // The method will be executed every time when query signal changes.
     // It will clean up supscription when 'UsersComponent' is destroyed.
     this.loadUsersByQuery(this.query);
-    // If it's called with static value (loadUsers('ngrx')), the effect
+    // If it's called with static value (loadUsers('ngrx')), the method
     // will be executed only once.
-    // If it's called with observable (loadUsers(query$)), the effect
+    // If it's called with observable (loadUsers(query$)), the method
     // will be executed every time when 'query$' observable emits a new
     // value.
   }
@@ -603,18 +600,18 @@ It can be also used to define SignalStore methods:
 
 ```ts
 import { signalStore, withState, withMethods, withHooks } from '@ngrx/signals';
-import { rxEffect } from '@ngrx/rxjs-utils';
+import { rxMethod } from '@ngrx/signals/rxjs-interop';
 
 type UsersState = { users: User[]; loading: boolean; query: string };
 
 const UsersStore = signalStore(
   withState<UsersState>({ users: [], query: '' }),
-  withMethods(({ $update }, usersService = inject(UsersService)) => ({
-    loadUsersByQuery: rxEffect<string>(
+  withMethods((store, usersService = inject(UsersService)) => ({
+    loadUsersByQuery: rxMethod<string>(
       pipe(
-        tap(() => $update({ loading: true })),
+        tap(() => store.$update({ loading: true })),
         switchMap((query) => usersService.getByQuery(query)),
-        tap((users) => $update({ users, loading: false }))
+        tap((users) => store.$update({ users, loading: false }))
       )
     ),
   })),
@@ -639,18 +636,18 @@ This package should provide the following APIs:
 ```ts
 import { signalStore, withMethods } from '@ngrx/signals';
 import { withEntities, setAll, deleteOne } from '@ngrx/signals/entities';
-import { rxEffect } from '@ngrx/rxjs-utils';
+import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { withCallState, setLoading, setLoaded } from './call-state.feature';
 
 const UsersStore = signalStore(
   withEntities<User>(),
   withCallState(),
-  withMethods(({ $update }, usersService = inject(UsersService)) => ({
-    loadUsers: rxEffect(
+  withMethods((store, usersService = inject(UsersService)) => ({
+    loadUsers: rxMethod(
       pipe(
-        tap(() => $update(setLoading())),
+        tap(() => store.$update(setLoading())),
         exhaustMap(() => usersService.getAll()),
-        tap((users) => $update(setAll(users), setLoaded()))
+        tap((users) => store.$update(setAll(users), setLoaded()))
       )
     ),
   }))

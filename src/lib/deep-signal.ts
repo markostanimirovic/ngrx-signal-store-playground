@@ -4,7 +4,7 @@ import { isRecord } from './helpers';
 
 export type DeepSignal<T> = Signal<T> &
   (T extends Record<string, unknown>
-    ? { [K in keyof T]: DeepSignal<T[K]> }
+    ? Readonly<{ [K in keyof T]: DeepSignal<T[K]> }>
     : unknown);
 
 export function toDeepSignal<T>(signal: Signal<T>): DeepSignal<T> {

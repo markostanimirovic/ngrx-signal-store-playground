@@ -17,14 +17,14 @@ import {
 } from 'rxjs';
 import { injectDestroy } from './inject-destroy';
 
-type RxEffectInput<Input> = Input | Observable<Input> | Signal<Input>;
-type RxEffect<Input> = ((input: RxEffectInput<Input>) => Unsubscribable) &
+type RxMethodInput<Input> = Input | Observable<Input> | Signal<Input>;
+type RxMethod<Input> = ((input: RxMethodInput<Input>) => Unsubscribable) &
   Unsubscribable;
 
-export function rxEffect<Input>(
+export function rxMethod<Input>(
   generator: OperatorFunction<Input, unknown>
-): RxEffect<Input> {
-  assertInInjectionContext(rxEffect);
+): RxMethod<Input> {
+  assertInInjectionContext(rxMethod);
 
   const injector = inject(Injector);
   const destroy$ = injectDestroy();
@@ -34,7 +34,7 @@ export function rxEffect<Input>(
     .pipe(takeUntil(destroy$))
     .subscribe();
 
-  const rxEffectFn = (input: RxEffectInput<Input>) => {
+  const rxMethodFn = (input: RxMethodInput<Input>) => {
     let input$: Observable<Input>;
 
     if (isSignal(input)) {
@@ -52,8 +52,8 @@ export function rxEffect<Input>(
 
     return instanceSubscription;
   };
-  rxEffectFn.unsubscribe =
+  rxMethodFn.unsubscribe =
     sourceSubscription.unsubscribe.bind(sourceSubscription);
 
-  return rxEffectFn;
+  return rxMethodFn;
 }

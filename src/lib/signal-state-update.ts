@@ -1,10 +1,10 @@
 import { WritableSignal } from '@angular/core';
 
-export type SignalStateUpdater<State> =
+export type SignalStateUpdater<State extends Record<string, unknown>> =
   | Partial<State>
   | ((state: State) => Partial<State>);
 
-export type SignalStateUpdate<State> = {
+export type SignalStateUpdate<State extends Record<string, unknown>> = {
   $update: (...updaters: SignalStateUpdater<State>[]) => void;
 };
 

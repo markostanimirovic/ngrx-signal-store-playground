@@ -1,6 +1,7 @@
 import {
   SignalStateUpdater,
-  signalStoreFeatureFactory,
+  signalStoreFeature,
+  type,
   withMethods,
 } from '@ngrx/signals';
 import { produce } from 'immer';
@@ -14,8 +15,8 @@ export function immerUpdater<State extends Record<string, unknown>>(
 }
 
 export function withImmerUpdate<State extends Record<string, unknown>>() {
-  const immerUpdateFeature = signalStoreFeatureFactory<{ state: State }>();
-  return immerUpdateFeature(
+  return signalStoreFeature(
+    { state: type<State>() },
     withMethods(({ $update }) => ({
       $update(
         ...updaters: Array<SignalStateUpdater<State> | ImmerUpdater<State>>

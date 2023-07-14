@@ -1,6 +1,6 @@
 import {
   SignalStateUpdater,
-  signalStoreFeatureFactory,
+  signalStoreFeature,
   withMethods,
   withState,
 } from '@ngrx/signals';
@@ -9,9 +9,7 @@ export type Filter = { query: string; pageSize: number };
 const initialFilter: Filter = { query: '', pageSize: 5 };
 
 export function withFilter() {
-  const filterFeature = signalStoreFeatureFactory();
-
-  return filterFeature(
+  return signalStoreFeature(
     withState({ filter: initialFilter }),
     withMethods(({ $update }) => ({
       updateFilter(partialFilter: Partial<Filter>): void {

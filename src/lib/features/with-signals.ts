@@ -1,22 +1,26 @@
 import { Signal } from '@angular/core';
 import {
+  EmptyFeatureInput,
+  EmptyFeatureResult,
+  getEmptyFeatureResult,
+  SignalStoreFeature,
   SignalStoreSlices,
-  InternalSignalStore,
-} from '../signal-store-feature-factory';
+} from '../signal-store-feature';
 
 export function withSignals<
-  State extends Record<string, unknown>,
-  PreviousSignals extends Record<string, Signal<any>>,
+  InputState extends Record<string, unknown>,
+  InputSignals extends Record<string, Signal<any>>,
   Signals extends Record<string, Signal<any>>
 >(
-  signalsFactory: (input: SignalStoreSlices<State> & PreviousSignals) => Signals
-): (
-  store: InternalSignalStore<{
-    state: State;
-    signals: PreviousSignals;
-  }>
-) => { signals: Signals } {
+  signalsFactory: (
+    props: SignalStoreSlices<InputState> & InputSignals
+  ) => Signals
+): SignalStoreFeature<
+  EmptyFeatureInput & { state: InputState; signals: InputSignals },
+  EmptyFeatureResult & { signals: Signals }
+> {
   return (store) => ({
+    ...getEmptyFeatureResult(),
     signals: signalsFactory({
       ...store.slices,
       ...store.signals,

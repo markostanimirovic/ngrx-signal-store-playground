@@ -33,7 +33,7 @@ export const CounterStore2 = signalStore(
   withSignals(({ count }) => ({
     doubleCount: selectSignal(() => count() * 2),
   })),
-  withMethods(({ count, $update }) => ({
+  withMethods(({ $update, count }) => ({
     increment: () => $update({ count: count() + 1 }),
     decrement: () => $update({ count: count() - 1 }),
   })),
