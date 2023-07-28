@@ -6,6 +6,7 @@ import {
   SignalStoreFeature,
   SignalStoreSlices,
 } from '../signal-store-feature';
+import { Prettify } from '../models';
 
 export function withMethods<
   InputState extends Record<string, unknown>,
@@ -14,10 +15,12 @@ export function withMethods<
   Methods extends Record<string, (...args: any[]) => any>
 >(
   methodsFactory: (
-    props: SignalStoreInternals<InputState> &
-      SignalStoreSlices<InputState> &
-      InputSignals &
-      InputMethods
+    store: Prettify<
+      SignalStoreInternals<Prettify<InputState>> &
+        SignalStoreSlices<InputState> &
+        InputSignals &
+        InputMethods
+    >
   ) => Methods
 ): SignalStoreFeature<
   {

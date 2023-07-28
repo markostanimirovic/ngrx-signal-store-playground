@@ -643,7 +643,7 @@ const UsersStore = signalStore(
   withEntities<User>(),
   withCallState(),
   withMethods((store, usersService = inject(UsersService)) => ({
-    loadUsers: rxMethod(
+    loadUsers: rxMethod<void>(
       pipe(
         tap(() => store.$update(setLoading())),
         exhaustMap(() => usersService.getAll()),

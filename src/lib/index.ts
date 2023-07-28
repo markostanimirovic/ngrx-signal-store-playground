@@ -5,7 +5,6 @@ export { signalStore } from './signal-store';
 export { signalStoreFeature, type } from './signal-store-feature';
 
 // rxjs utils
-export { injectDestroy } from './inject-destroy';
 export { rxMethod } from './rx-method';
 
 // base features

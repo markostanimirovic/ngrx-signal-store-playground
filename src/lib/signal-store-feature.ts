@@ -2,7 +2,7 @@ import { Signal } from '@angular/core';
 import { SignalStoreInternals } from './signal-store-internals';
 import { DeepSignal } from './deep-signal';
 
-export type SignalStoreSlices<State extends Record<string, unknown>> = {
+export type SignalStoreSlices<State extends object> = {
   [Key in keyof State]: DeepSignal<State[Key]>;
 };
 
@@ -12,7 +12,10 @@ export type StoreFeatureInput = {
   methods: Record<string, (...args: any[]) => any>;
 };
 
-export type StoreFeatureResult = StoreFeatureInput & {
+export type StoreFeatureResult = {
+  state: any;
+  signals: any;
+  methods: any;
   hooks: {
     onInit?: () => void;
     onDestroy?: () => void;
