@@ -1,13 +1,17 @@
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { DeepSignal, toDeepSignal } from './deep-signal';
-import {
-  SignalStateUpdate,
-  signalStateUpdateFactory,
-} from './signal-state-update';
-import { defaultEqualityFn } from './helpers';
+import { defaultEqualityFn } from './select-signal';
 
-type SignalState<State extends Record<string, unknown>> =
-  SignalStateUpdate<State> & DeepSignal<State>;
+export type SignalState<State extends Record<string, unknown>> =
+  DeepSignal<State> & SignalStateUpdate<State>;
+
+export type SignalStateUpdater<State extends Record<string, unknown>> =
+  | Partial<State>
+  | ((state: State) => Partial<State>);
+
+export type SignalStateUpdate<State extends Record<string, unknown>> = {
+  $update: (...updaters: SignalStateUpdater<State>[]) => void;
+};
 
 export function signalState<State extends Record<string, unknown>>(
   initialState: State
@@ -18,4 +22,19 @@ export function signalState<State extends Record<string, unknown>>(
     signalStateUpdateFactory(stateSignal);
 
   return deepSignal as SignalState<State>;
+}
+
+export function signalStateUpdateFactory<State extends Record<string, unknown>>(
+  stateSignal: WritableSignal<State>
+): SignalStateUpdate<State>['$update'] {
+  return (...updaters) =>
+    stateSignal.update((state) =>
+      updaters.reduce(
+        (currentState: State, updater) => ({
+          ...currentState,
+          ...(typeof updater === 'function' ? updater(currentState) : updater),
+        }),
+        state
+      )
+    );
 }

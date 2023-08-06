@@ -5,6 +5,9 @@ import { interval } from 'rxjs';
 import { signalState } from '@ngrx/signals';
 import { immerUpdater } from './shared/immer-update.feature';
 
+import * as test1 from '../tests/test1';
+import * as test2 from '../tests/test2';
+
 @Component({
   selector: 'app-root',
   standalone: true,

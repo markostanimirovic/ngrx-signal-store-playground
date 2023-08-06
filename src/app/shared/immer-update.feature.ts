@@ -1,4 +1,5 @@
 import {
+  Prettify,
   SignalStateUpdater,
   signalStoreFeature,
   type,
@@ -14,16 +15,24 @@ export function immerUpdater<State extends Record<string, unknown>>(
   return (state) => produce(state, (draft) => updater(draft as State));
 }
 
+export type ImmerUpdate<State extends Record<string, unknown>> = {
+  $update(
+    ...updaters: Array<
+      SignalStateUpdater<Prettify<State>> | ImmerUpdater<Prettify<State>>
+    >
+  ): void;
+};
+
 export function withImmerUpdate<State extends Record<string, unknown>>() {
   return signalStoreFeature(
     { state: type<State>() },
-    withMethods(({ $update }) => ({
-      $update(
-        ...updaters: Array<SignalStateUpdater<State> | ImmerUpdater<State>>
-      ): void {
-        $update(...toImmerUpdaters(...updaters));
-      },
-    }))
+    withMethods(
+      ({ $update }): ImmerUpdate<State> => ({
+        $update(...updaters) {
+          $update(...toImmerUpdaters(...updaters));
+        },
+      })
+    )
   );
 }
 

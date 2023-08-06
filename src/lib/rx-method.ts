@@ -22,11 +22,7 @@ import {
   Unsubscribable,
 } from 'rxjs';
 
-type RxMethodInput<Input> = Input | Observable<Input> | Signal<Input>;
-type RxMethod<Input> = ((input: RxMethodInput<Input>) => Unsubscribable) &
-  Unsubscribable;
-
-type RxMethodOptions = {
+export type RxMethodOptions = {
   injector?: Injector;
   /**
    * By default, this option is `true`. If set to `false`, the `rxMethod` will
@@ -34,6 +30,11 @@ type RxMethodOptions = {
    */
   retryOnError?: boolean;
 };
+
+type RxMethodInput<Input> = Input | Observable<Input> | Signal<Input>;
+
+type RxMethod<Input> = ((input: RxMethodInput<Input>) => Unsubscribable) &
+  Unsubscribable;
 
 export function rxMethod<Input>(
   generator: OperatorFunction<Input, unknown>,
