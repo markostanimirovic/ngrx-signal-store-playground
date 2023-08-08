@@ -31,12 +31,14 @@ export function signalStateUpdateFactory<State extends Record<string, unknown>>(
 ): SignalStateUpdate<State>['$update'] {
   return (...updaters) =>
     stateSignal.update((state) =>
-      updaters.reduce((currentState: State, updater) => {
-        deepFreeze(currentState);
-        return {
+      updaters.reduce(
+        (currentState: State, updater) => ({
           ...currentState,
-          ...(typeof updater === 'function' ? updater(currentState) : updater),
-        };
-      }, state)
+          ...(typeof updater === 'function'
+            ? updater(deepFreeze(currentState))
+            : updater),
+        }),
+        state
+      )
     );
 }

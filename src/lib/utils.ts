@@ -1,4 +1,4 @@
-export function deepFreeze(target: any) {
+export function deepFreeze<T extends object>(target: T): T {
   Object.freeze(target);
 
   const targetIsFunction = isFunction(target);
@@ -16,7 +16,8 @@ export function deepFreeze(target: any) {
         ? prop !== 'caller' && prop !== 'callee' && prop !== 'arguments'
         : true)
     ) {
-      const propValue: unknown = target[prop];
+      // @ts-ignore
+      const propValue = target[prop];
 
       if (
         (isObjectLike(propValue) || isFunction(propValue)) &&
