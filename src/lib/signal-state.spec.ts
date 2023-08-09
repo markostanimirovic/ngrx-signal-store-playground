@@ -1,7 +1,7 @@
 import { effect } from '@angular/core';
-import { withEffect } from './with-effect';
-import { signalState } from '../lib/signal-state';
-import { selectSignal } from '../lib/select-signal';
+import { testEffects } from '../tests/test-effects';
+import { signalState } from './signal-state';
+import { selectSignal } from './select-signal';
 
 describe('Signal State', () => {
   const initialState = {
@@ -50,7 +50,7 @@ describe('Signal State', () => {
   describe('equal checks', () => {
     it(
       'should not fire unchanged signals on update',
-      withEffect((detectChanges) => {
+      testEffects((detectChanges) => {
         const state = setup();
 
         const numberEffect = jest.fn(() => state.numbers());
@@ -77,7 +77,7 @@ describe('Signal State', () => {
 
     it(
       'should not fire for unchanged derived signals',
-      withEffect((detectChanges) => {
+      testEffects((detectChanges) => {
         const state = setup();
 
         const numberCount = selectSignal(
@@ -111,7 +111,7 @@ describe('Signal State', () => {
   describe('immutability', () => {
     it(
       'should throw on mutable changes',
-      withEffect((detectChanges) => {
+      testEffects((detectChanges) => {
         let numberCounter = 0;
         const state = setup();
         const effectFn = jest.fn(() => state.numbers());
@@ -131,7 +131,7 @@ describe('Signal State', () => {
 
     it(
       'should throw on a single mutable change',
-      withEffect((detectChanges) => {
+      testEffects((detectChanges) => {
         let numberCounter = 0;
         const state = setup();
         const effectFn = jest.fn(() => state.numbers());

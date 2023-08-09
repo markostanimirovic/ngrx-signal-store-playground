@@ -1,7 +1,7 @@
 import { signal, WritableSignal } from '@angular/core';
 import { DeepSignal, toDeepSignal } from './deep-signal';
 import { defaultEqualityFn } from './select-signal';
-import { deepFreeze, isFunction, isObjectLike } from './utils';
+import { deepFreeze } from './deep-freeze';
 
 export type SignalState<State extends Record<string, unknown>> =
   DeepSignal<State> & SignalStateUpdate<State>;
