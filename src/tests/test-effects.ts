@@ -9,7 +9,7 @@ import { TestBed } from '@angular/core/testing';
  * withEffects renders a TestComponent and executes the tests inside an injectionContext.
  * This allows us to generate effects very easily.
  */
-export const withEffect =
+export const testEffects =
   (testFn: (detectChanges: () => void) => void): (() => void) =>
   () => {
     const fixture = TestBed.configureTestingModule({

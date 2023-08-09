@@ -16,8 +16,7 @@ export function deepFreeze<T extends object>(target: T): T {
         ? prop !== 'caller' && prop !== 'callee' && prop !== 'arguments'
         : true)
     ) {
-      // @ts-ignore
-      const propValue = target[prop];
+      const propValue = (target as Record<string, unknown>)[prop];
 
       if (
         (isObjectLike(propValue) || isFunction(propValue)) &&
@@ -31,10 +30,10 @@ export function deepFreeze<T extends object>(target: T): T {
   return target;
 }
 
-export function isFunction(target: unknown): target is () => unknown {
+function isFunction(target: unknown): target is () => unknown {
   return typeof target === 'function';
 }
 
-export function isObjectLike(target: unknown): target is object {
+function isObjectLike(target: unknown): target is object {
   return typeof target === 'object' && target !== null;
 }
