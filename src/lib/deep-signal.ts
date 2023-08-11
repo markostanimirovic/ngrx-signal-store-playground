@@ -23,6 +23,6 @@ export function toDeepSignal<T>(signal: Signal<T>): DeepSignal<T> {
   });
 }
 
-function isRecord(value: unknown): value is Record<string | symbol, unknown> {
+function isRecord(value: unknown): value is Record<string, unknown> {
   return value?.constructor === Object;
 }
