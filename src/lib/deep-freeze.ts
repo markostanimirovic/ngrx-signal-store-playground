@@ -1,4 +1,6 @@
-export function deepFreeze<T extends object>(target: T): T {
+import { DeepReadonly } from './deep-readonly';
+
+export function deepFreeze<T extends object>(target: T): DeepReadonly<T> {
   Object.freeze(target);
 
   const targetIsFunction = isFunction(target);
@@ -27,7 +29,7 @@ export function deepFreeze<T extends object>(target: T): T {
     }
   }
 
-  return target;
+  return target as DeepReadonly<T>;
 }
 
 function isFunction(target: unknown): target is () => unknown {

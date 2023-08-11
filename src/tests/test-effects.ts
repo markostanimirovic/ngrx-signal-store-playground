@@ -10,7 +10,7 @@ import { TestBed } from '@angular/core/testing';
  * This allows us to generate effects very easily.
  */
 export const testEffects =
-  (testFn: (detectChanges: () => void) => void): (() => void) =>
+  (testFn: (runEffects: () => void) => void): (() => void) =>
   () => {
     const fixture = TestBed.configureTestingModule({
       imports: [TestComponent],
