@@ -1,4 +1,4 @@
-import { effect, PLATFORM_ID } from '@angular/core';
+import { effect, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformServer } from '@angular/common';
 import {
   EmptyFeatureResult,
@@ -52,10 +52,6 @@ export function withStorageSync<State extends Record<string, unknown>>(
   EmptyFeatureResult & { state: State },
   EmptyFeatureResult
 > {
-  if (isPlatformServer(PLATFORM_ID)) {
-    return (store) => store;
-  }
-
   const {
     key,
     select = (state: State) => state,
@@ -66,7 +62,11 @@ export function withStorageSync<State extends Record<string, unknown>>(
 
   return signalStoreFeature(
     withHooks({
-      onInit(store) {
+      onInit(store, platformId = inject(PLATFORM_ID)) {
+        if (isPlatformServer(platformId)) {
+          return;
+        }
+
         const storage = storageFactory();
 
         const stateStr = storage.getItem(key);
@@ -76,7 +76,7 @@ export function withStorageSync<State extends Record<string, unknown>>(
         }
 
         effect(() => {
-          let state = select(store.$state() as State);
+          const state = select(store.$state() as State);
           storage.setItem(key, stringify(state));
         });
       },
