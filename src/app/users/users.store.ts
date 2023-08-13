@@ -1,21 +1,25 @@
+import { inject } from '@angular/core';
 import { signalStore, withHooks, withState } from '@ngrx/signals';
 import { UsersService } from './users.service';
 import { User } from './user.model';
 import { withCallState } from '../shared/call-state.feature';
 import { withFilter } from '../shared/filter.feature';
-import { withLoadEntities } from '../shared/load-entities.feature';
+import { withLoadEntitiesByFilter } from '../shared/load-entities.feature';
+import { withStorageSync } from '../shared/storage-sync.feature';
 
 // creating a store using generic features
 export const UsersStore = signalStore(
-  { providedIn: 'root' },
   withState({ entities: [] as User[] }),
   withCallState(),
   withFilter(),
-  withLoadEntities(UsersService),
+  withStorageSync({
+    key: 'users-store',
+    select: ({ entities }) => ({ entities }),
+  }),
+  withLoadEntitiesByFilter((filter) =>
+    inject(UsersService).getByFilter(filter)
+  ),
   withHooks({
-    onInit({ loadByFilter, filter }) {
-      // re-fetch users every time when filter signal changes
-      loadByFilter(filter);
-    },
+    onInit: ({ loadByFilter, filter }) => loadByFilter(filter),
   })
 );

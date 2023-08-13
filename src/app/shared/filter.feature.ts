@@ -1,6 +1,9 @@
+import { effect, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   SignalStateUpdater,
   signalStoreFeature,
+  withHooks,
   withMethods,
   withState,
 } from '@ngrx/signals';
@@ -15,7 +18,24 @@ export function withFilter() {
       updateFilter(partialFilter: Partial<Filter>): void {
         $update(patchFilter(partialFilter));
       },
-    }))
+    })),
+    withHooks({
+      onInit(store, route = inject(ActivatedRoute), router = inject(Router)) {
+        const { queryParams } = route.snapshot;
+        const query = queryParams['query'] ?? '';
+        const pageSize = Number(queryParams['pageSize'] ?? 5);
+
+        store.updateFilter({ query, pageSize });
+
+        effect(() => {
+          router.navigate([], {
+            relativeTo: route,
+            queryParams: store.filter(),
+            queryParamsHandling: 'merge',
+          });
+        });
+      },
+    })
   );
 }
 

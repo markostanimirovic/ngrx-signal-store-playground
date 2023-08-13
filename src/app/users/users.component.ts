@@ -30,6 +30,7 @@ import { UsersStore } from './users.store';
       </button>
     </div>
   `,
+  providers: [UsersStore],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UsersComponent {

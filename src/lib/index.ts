@@ -2,7 +2,11 @@ export { selectSignal } from './select-signal';
 export { signalState, SignalStateUpdater } from './signal-state';
 export { signalStore } from './signal-store';
 export { signalStoreFeature, type } from './signal-store-feature';
-export { Prettify } from './signal-store-models';
+export {
+  EmptyFeatureResult,
+  Prettify,
+  SignalStoreFeature,
+} from './signal-store-models';
 
 // rxjs interop
 export { rxMethod } from './rx-method';
