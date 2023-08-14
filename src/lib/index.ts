@@ -1,5 +1,6 @@
 export { selectSignal } from './select-signal';
-export { signalState, SignalStateUpdater } from './signal-state';
+export { signalState } from './signal-state';
+export { SignalStateUpdater } from './signal-state-models';
 export { signalStore } from './signal-store';
 export { signalStoreFeature, type } from './signal-store-feature';
 export {

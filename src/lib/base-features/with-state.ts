@@ -5,12 +5,13 @@ import {
   SignalStoreFeature,
   SignalStoreFeatureResult,
 } from '../signal-store-models';
+import { NotAllowedStateCheck } from '../signal-state-models';
 import { selectSignal } from '../select-signal';
 import { toDeepSignal } from '../deep-signal';
 import { excludeKeys } from './helpers';
 
 export function withState<State extends Record<string, unknown>>(
-  state: State
+  state: State & NotAllowedStateCheck<State>
 ): SignalStoreFeature<
   EmptyFeatureResult,
   EmptyFeatureResult & {
@@ -18,7 +19,7 @@ export function withState<State extends Record<string, unknown>>(
   }
 >;
 export function withState<State extends Record<string, unknown>>(
-  stateFactory: () => State
+  stateFactory: () => State & NotAllowedStateCheck<State>
 ): SignalStoreFeature<
   EmptyFeatureResult,
   EmptyFeatureResult & {

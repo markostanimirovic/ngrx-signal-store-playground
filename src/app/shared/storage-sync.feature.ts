@@ -21,9 +21,9 @@ export function withStorageSync<
   Slices extends Partial<State>
 >(config: {
   key: string;
-  select: (state: Prettify<State>) => Slices;
+  select: (state: Prettify<NoInfer<State>>) => Slices;
   parse?: (stateStr: string) => NoInfer<Slices>;
-  stringify?: (state: Prettify<Slices>) => string;
+  stringify?: (state: Prettify<NoInfer<Slices>>) => string;
   storage?: () => Storage;
 }): SignalStoreFeature<
   EmptyFeatureResult & { state: State },
@@ -32,7 +32,7 @@ export function withStorageSync<
 export function withStorageSync<State extends Record<string, unknown>>(config: {
   key: string;
   parse?: (stateStr: string) => NoInfer<State>;
-  stringify?: (state: Prettify<State>) => string;
+  stringify?: (state: Prettify<NoInfer<State>>) => string;
   storage?: () => Storage;
 }): SignalStoreFeature<
   EmptyFeatureResult & { state: State },

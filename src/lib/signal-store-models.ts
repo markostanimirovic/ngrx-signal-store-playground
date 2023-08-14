@@ -1,6 +1,6 @@
 import { Signal } from '@angular/core';
 import { DeepSignal } from './deep-signal';
-import { SignalStateUpdate } from './signal-state';
+import { SignalStateUpdate } from './signal-state-models';
 
 export type Prettify<T> = { [K in keyof T]: T[K] } & {};
 
