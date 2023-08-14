@@ -83,3 +83,13 @@ export function withStorageSync<State extends Record<string, unknown>>(
     })
   );
 }
+
+export function excludeSlices<
+  State extends Record<string, unknown>,
+  Keys extends Array<keyof State>
+>(state: State, keys: [...Keys]): Omit<State, Keys[number]> {
+  return Object.keys(state).reduce(
+    (acc, key) => (keys.includes(key) ? acc : { ...acc, [key]: state[key] }),
+    {} as Omit<State, Keys[number]>
+  );
+}
