@@ -11,6 +11,7 @@ export {
 
 // rxjs interop
 export { rxMethod } from './rx-method';
+export { tapResponse } from './tap-response';
 
 // base features
 export { withHooks } from './base-features/with-hooks';
