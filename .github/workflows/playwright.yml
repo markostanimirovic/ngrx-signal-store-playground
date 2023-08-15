@@ -1,5 +1,5 @@
 name: Playwright Tests
-on: [push pull_request]
+on: [push, pull_request]
 jobs:
   test:
     timeout-minutes: 10
