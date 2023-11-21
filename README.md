@@ -1,4 +1,6 @@
-## NgRx Signals
+## [Archived] NgRx Signals
+
+**⚠️ This repository is archived. The source code of the [`@ngrx/signals` package](https://www.npmjs.com/package/@ngrx/signals) is available in the [NgRx repository](https://github.com/ngrx/platform).**
 
 Main goals:
 
